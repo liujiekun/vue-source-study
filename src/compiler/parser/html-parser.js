@@ -63,6 +63,7 @@ export function parseHTML(html, options) {
     // Make sure we're not in a plaintext content element like script/style
     if (!lastTag || !isPlainTextElement(lastTag)) {
       let textEnd = html.indexOf('<')
+      // textEnd =0 是标签开始
       if (textEnd === 0) {
         // Comment:
         if (comment.test(html)) {
@@ -115,6 +116,7 @@ export function parseHTML(html, options) {
       }
 
       let text, rest, next
+      // 如果它大于0说明截取到了text文本，且后面还有标签
       if (textEnd >= 0) {
         rest = html.slice(textEnd)
         while (
@@ -132,7 +134,7 @@ export function parseHTML(html, options) {
         text = html.substring(0, textEnd)
       }
 
-      if (textEnd < 0) {
+      if (textEnd < 0) {// 小于0说明截取完毕，剩下空白或文本了
         text = html
       }
 
@@ -140,7 +142,7 @@ export function parseHTML(html, options) {
         advance(text.length)
       }
 
-      if (options.chars && text) {
+      if (options.chars && text) {// 调用options.chars处理文本
         options.chars(text, index - text.length, index)
       }
     } else {
@@ -280,11 +282,13 @@ export function parseHTML(html, options) {
           (i > pos || !tagName) &&
           options.warn
         ) {
+          // 如果是成对儿的话，必须是stack.length-1=pos,如果不等说明最后一个就没有匹配上
           options.warn(
             `tag <${stack[i].tag}> has no matching end tag.`,
             { start: stack[i].start, end: stack[i].end }
           )
         }
+        // 如果匹配上了就处理end
         if (options.end) {
           options.end(stack[i].tag, start, end)
         }

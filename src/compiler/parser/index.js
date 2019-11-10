@@ -57,7 +57,7 @@ let platformMustUseProp
 let platformGetTagNamespace
 let maybeComponent
 
-export function createASTElement (
+export function createASTElement(
   tag: string,
   attrs: Array<ASTAttr>,
   parent: ASTElement | void
@@ -76,7 +76,7 @@ export function createASTElement (
 /**
  * Convert HTML string to AST.
  */
-export function parse (
+export function parse(
   template: string,
   options: CompilerOptions
 ): ASTElement | void {
@@ -105,14 +105,14 @@ export function parse (
   let inPre = false
   let warned = false
 
-  function warnOnce (msg, range) {
+  function warnOnce(msg, range) {
     if (!warned) {
       warned = true
       warn(msg, range)
     }
   }
 
-  function closeElement (element) {
+  function closeElement(element) {
     trimEndingWhitespace(element)
     if (!inVPre && !element.processed) {
       element = processElement(element, options)
@@ -120,6 +120,7 @@ export function parse (
     // tree management
     if (!stack.length && element !== root) {
       // allow root elements with v-if, v-else-if and v-else
+      // 如果根节点是if,else的情况
       if (root.if && (element.elseif || element.else)) {
         if (process.env.NODE_ENV !== 'production') {
           checkRootConstraints(element)
@@ -146,7 +147,10 @@ export function parse (
           // keep it in the children list so that v-else(-if) conditions can
           // find it as the prev node.
           const name = element.slotTarget || '"default"'
-          ;(currentParent.scopedSlots || (currentParent.scopedSlots = {}))[name] = element
+            ; (currentParent.scopedSlots || (currentParent.scopedSlots = {}))[name] = element
+          // <parent>           // curentParent.scopedSlots[header]= element 
+          //  <p slot="header"> // element.slotTarget=header
+          // </parent>
         }
         currentParent.children.push(element)
         element.parent = currentParent
@@ -155,6 +159,7 @@ export function parse (
 
     // final children cleanup
     // filter out scoped slots
+    // 为什么要清理掉呢，等待后续解答
     element.children = element.children.filter(c => !(c: any).slotScope)
     // remove trailing whitespace node again
     trimEndingWhitespace(element)
@@ -172,7 +177,7 @@ export function parse (
     }
   }
 
-  function trimEndingWhitespace (el) {
+  function trimEndingWhitespace(el) {
     // remove trailing whitespace node
     if (!inPre) {
       let lastNode
@@ -186,7 +191,7 @@ export function parse (
     }
   }
 
-  function checkRootConstraints (el) {
+  function checkRootConstraints(el) {
     if (el.tag === 'slot' || el.tag === 'template') {
       warnOnce(
         `Cannot use <${el.tag}> as component root element because it may ` +
@@ -212,7 +217,7 @@ export function parse (
     shouldDecodeNewlinesForHref: options.shouldDecodeNewlinesForHref,
     shouldKeepComment: options.comments,
     outputSourceRange: options.outputSourceRange,
-    start (tag, attrs, unary, start, end) {
+    start(tag, attrs, unary, start, end) {
       // check namespace.
       // inherit parent ns if there is one
       const ns = (currentParent && currentParent.ns) || platformGetTagNamespace(tag)
@@ -295,11 +300,12 @@ export function parse (
         currentParent = element
         stack.push(element)
       } else {
+        // 如果是单闭合标签直接就处理了，否则等到end的closeElement来处理
         closeElement(element)
       }
     },
 
-    end (tag, start, end) {
+    end(tag, start, end) {
       const element = stack[stack.length - 1]
       // pop stack
       stack.length -= 1
@@ -310,7 +316,7 @@ export function parse (
       closeElement(element)
     },
 
-    chars (text: string, start: number, end: number) {
+    chars(text: string, start: number, end: number) {
       if (!currentParent) {
         if (process.env.NODE_ENV !== 'production') {
           if (text === template) {
@@ -381,7 +387,7 @@ export function parse (
         }
       }
     },
-    comment (text: string, start, end) {
+    comment(text: string, start, end) {
       // adding anyting as a sibling to the root node is forbidden
       // comments should still be allowed, but ignored
       if (currentParent) {
@@ -401,13 +407,13 @@ export function parse (
   return root
 }
 
-function processPre (el) {
+function processPre(el) {
   if (getAndRemoveAttr(el, 'v-pre') != null) {
     el.pre = true
   }
 }
 
-function processRawAttrs (el) {
+function processRawAttrs(el) {
   const list = el.attrsList
   const len = list.length
   if (len) {
@@ -428,7 +434,7 @@ function processRawAttrs (el) {
   }
 }
 
-export function processElement (
+export function processElement(
   element: ASTElement,
   options: CompilerOptions
 ) {
@@ -453,7 +459,7 @@ export function processElement (
   return element
 }
 
-function processKey (el) {
+function processKey(el) {
   const exp = getBindingAttr(el, 'key')
   if (exp) {
     if (process.env.NODE_ENV !== 'production') {
@@ -480,7 +486,7 @@ function processKey (el) {
   }
 }
 
-function processRef (el) {
+function processRef(el) {
   const ref = getBindingAttr(el, 'ref')
   if (ref) {
     el.ref = ref
@@ -488,7 +494,7 @@ function processRef (el) {
   }
 }
 
-export function processFor (el: ASTElement) {
+export function processFor(el: ASTElement) {
   let exp
   if ((exp = getAndRemoveAttr(el, 'v-for'))) {
     const res = parseFor(exp)
@@ -513,29 +519,29 @@ type ForParseResult = {
   iterator2?: string;
 };
 
-export function parseFor (exp: string): ?ForParseResult {
+export function parseFor(exp: string): ?ForParseResult {
   const inMatch = exp.match(forAliasRE)
   if (!inMatch) return
   // (item,index) in List
   const res = {}
-  res.for = inMatch[2].trim() // 匹配到的循环元素(item,index)
-  const alias = inMatch[1].trim().replace(stripParensRE, '') // 把表达式左右括号去掉,变成item,index in List
-  const iteratorMatch = alias.match(forIteratorRE) // 类似(item,index) in 
+  res.for = inMatch[2].trim() // 匹配到的循环对此昂List
+  const alias = inMatch[1].trim().replace(stripParensRE, '') // 把表达式左右括号去掉,变成item,index
+  const iteratorMatch = alias.match(forIteratorRE) // 剩下了item,index
   if (iteratorMatch) {
-    res.alias = alias.replace(forIteratorRE, '').trim() // item in List
-    res.iterator1 = iteratorMatch[1].trim() // item,index
+    res.alias = alias.replace(forIteratorRE, '').trim() // 只剩下了item
+    res.iterator1 = iteratorMatch[1].trim() // index
     if (iteratorMatch[2]) {
-      res.iterator2 = iteratorMatch[2].trim() // index
+      res.iterator2 = iteratorMatch[2].trim()
     }
   } else {
     res.alias = alias
   }
-  // 如果一项，返回{alias: "item in List"}
-  // 如果两项，返回{alias:"item in List",iterator1:"item",iterator2:"index"}
+  // 如果一项，返回{for:List,alias: "item"}
+  // 如果两项，返回{for:List,alias:"item",iterator1:"index"}
   return res
 }
 
-function processIf (el) {
+function processIf(el) {
   const exp = getAndRemoveAttr(el, 'v-if')
   if (exp) {
     el.if = exp
@@ -554,11 +560,11 @@ function processIf (el) {
   }
 }
 
-function processIfConditions (el, parent) {
+function processIfConditions(el, parent) {
   const prev = findPrevElement(parent.children)
   if (prev && prev.if) {
     addIfCondition(prev, {
-      exp: el.elseif,
+      exp: el.elseif, // 如果只是else，这个就位空，如果是elseif就有值
       block: el
     })
   } else if (process.env.NODE_ENV !== 'production') {
@@ -570,7 +576,7 @@ function processIfConditions (el, parent) {
   }
 }
 
-function findPrevElement (children: Array<any>): ASTElement | void {
+function findPrevElement(children: Array<any>): ASTElement | void {
   let i = children.length
   while (i--) {
     if (children[i].type === 1) {
@@ -588,14 +594,14 @@ function findPrevElement (children: Array<any>): ASTElement | void {
   }
 }
 
-export function addIfCondition (el: ASTElement, condition: ASTIfCondition) {
+export function addIfCondition(el: ASTElement, condition: ASTIfCondition) {
   if (!el.ifConditions) {
     el.ifConditions = []
   }
   el.ifConditions.push(condition)
 }
 
-function processOnce (el) {
+function processOnce(el) {
   const once = getAndRemoveAttr(el, 'v-once')
   if (once != null) {
     el.once = true
@@ -604,7 +610,7 @@ function processOnce (el) {
 
 // handle content being passed to a component as slot,
 // e.g. <template slot="xxx">, <div slot-scope="xxx">
-function processSlotContent (el) {
+function processSlotContent(el) {
   let slotScope
   if (el.tag === 'template') {
     slotScope = getAndRemoveAttr(el, 'scope')
@@ -719,7 +725,7 @@ function processSlotContent (el) {
   }
 }
 
-function getSlotName (binding) {
+function getSlotName(binding) {
   let name = binding.name.replace(slotRE, '')
   if (!name) {
     if (binding.name[0] !== '#') {
@@ -739,7 +745,7 @@ function getSlotName (binding) {
 }
 
 // handle <slot/> outlets
-function processSlotOutlet (el) {
+function processSlotOutlet(el) {
   if (el.tag === 'slot') {
     el.slotName = getBindingAttr(el, 'name')
     if (process.env.NODE_ENV !== 'production' && el.key) {
@@ -753,7 +759,7 @@ function processSlotOutlet (el) {
   }
 }
 
-function processComponent (el) {
+function processComponent(el) {
   let binding
   if ((binding = getBindingAttr(el, 'is'))) {
     el.component = binding
@@ -763,24 +769,26 @@ function processComponent (el) {
   }
 }
 
-function processAttrs (el) {
+function processAttrs(el) {
   const list = el.attrsList
   let i, l, name, rawName, value, modifiers, syncGen, isDynamic
   for (i = 0, l = list.length; i < l; i++) {
     name = rawName = list[i].name
     value = list[i].value
-    if (dirRE.test(name)) {
+    if (dirRE.test(name)) {// /^v-|^@|^:|^\.|^#/ 或者/^v-|^@|^:|^#/
       // mark element as dynamic
       el.hasBindings = true
-      // modifiers
+      // modifiers，处理native.keypress这种{keypress:true}
       modifiers = parseModifiers(name.replace(dirRE, ''))
       // support .foo shorthand syntax for the .prop modifier
       if (process.env.VBIND_PROP_SHORTHAND && propBindRE.test(name)) {
         (modifiers || (modifiers = {})).prop = true
         name = `.` + name.slice(1).replace(modifierRE, '')
       } else if (modifiers) {
+        // 本来属性名是@native.keypress，现在name = @native
         name = name.replace(modifierRE, '')
       }
+      // bindRE --- /^:|^\.|^v-bind:/
       if (bindRE.test(name)) { // v-bind
         name = name.replace(bindRE, '')
         value = parseFilters(value)
@@ -804,7 +812,7 @@ function processAttrs (el) {
           if (modifiers.camel && !isDynamic) {
             name = camelize(name)
           }
-          if (modifiers.sync) {
+          if (modifiers.sync) { // 弹窗最常见，如:visible.sync = 'dialogshow'
             syncGen = genAssignmentCode(value, `$event`)
             if (!isDynamic) {
               addHandler(
@@ -849,11 +857,12 @@ function processAttrs (el) {
         } else {
           addAttr(el, name, value, list[i], isDynamic)
         }
-      } else if (onRE.test(name)) { // v-on
+      } else if (onRE.test(name)) { // v-on, onRE = /^@|^v-on:/
+        // @click变成click
         name = name.replace(onRE, '')
-        isDynamic = dynamicArgRE.test(name)
+        isDynamic = dynamicArgRE.test(name) //   /^\[.*\]$/
         if (isDynamic) {
-          name = name.slice(1, -1)
+          name = name.slice(1, -1) // 会有动态的@["click"] = handleClick写法吗，这个slice是去掉中括号
         }
         addHandler(el, name, value, modifiers, false, warn, list[i], isDynamic)
       } else { // normal directives
@@ -892,15 +901,15 @@ function processAttrs (el) {
       // #6887 firefox doesn't update muted state if set via attribute
       // even immediately after element creation
       if (!el.component &&
-          name === 'muted' &&
-          platformMustUseProp(el.tag, el.attrsMap.type, name)) {
+        name === 'muted' &&
+        platformMustUseProp(el.tag, el.attrsMap.type, name)) {
         addProp(el, name, 'true', list[i])
       }
     }
   }
 }
 
-function checkInFor (el: ASTElement): boolean {
+function checkInFor(el: ASTElement): boolean {
   let parent = el
   while (parent) {
     if (parent.for !== undefined) {
@@ -911,7 +920,7 @@ function checkInFor (el: ASTElement): boolean {
   return false
 }
 
-function parseModifiers (name: string): Object | void {
+function parseModifiers(name: string): Object | void {
   const match = name.match(modifierRE)
   if (match) {
     const ret = {}
@@ -920,7 +929,7 @@ function parseModifiers (name: string): Object | void {
   }
 }
 
-function makeAttrsMap (attrs: Array<Object>): Object {
+function makeAttrsMap(attrs: Array<Object>): Object {
   const map = {}
   for (let i = 0, l = attrs.length; i < l; i++) {
     if (
@@ -935,11 +944,11 @@ function makeAttrsMap (attrs: Array<Object>): Object {
 }
 
 // for script (e.g. type="x/template") or style, do not decode content
-function isTextTag (el): boolean {
+function isTextTag(el): boolean {
   return el.tag === 'script' || el.tag === 'style'
 }
 
-function isForbiddenTag (el): boolean {
+function isForbiddenTag(el): boolean {
   return (
     el.tag === 'style' ||
     (el.tag === 'script' && (
@@ -953,7 +962,7 @@ const ieNSBug = /^xmlns:NS\d+/
 const ieNSPrefix = /^NS\d+:/
 
 /* istanbul ignore next */
-function guardIESVGBug (attrs) {
+function guardIESVGBug(attrs) {
   const res = []
   for (let i = 0; i < attrs.length; i++) {
     const attr = attrs[i]
@@ -965,7 +974,7 @@ function guardIESVGBug (attrs) {
   return res
 }
 
-function checkForAliasModel (el, value) {
+function checkForAliasModel(el, value) {
   let _el = el
   while (_el) {
     if (_el.for && _el.alias === value) {
