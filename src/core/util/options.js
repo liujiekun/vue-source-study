@@ -449,12 +449,16 @@ export function resolveAsset (
   if (typeof id !== 'string') {
     return
   }
+   // 这里不仅仅是查找组件使用，还可以查找options下面的任何资源，比如常见的directives,components
   const assets = options[type]
   // check local registration variations first
+  //一毛一样的组件，肯定匹配
   if (hasOwn(assets, id)) return assets[id]
   const camelizedId = camelize(id)
+  // 注册是驼峰，模板是小写加-的情况
   if (hasOwn(assets, camelizedId)) return assets[camelizedId]
   const PascalCaseId = capitalize(camelizedId)
+  // 注册是首字母大写，模板是首字母小写的情况
   if (hasOwn(assets, PascalCaseId)) return assets[PascalCaseId]
   // fallback to prototype chain
   const res = assets[id] || assets[camelizedId] || assets[PascalCaseId]

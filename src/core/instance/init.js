@@ -49,12 +49,12 @@ export function initMixin (Vue: Class<Component>) {
     }
     // expose real self
     vm._self = vm
-    initLifecycle(vm)
-    initEvents(vm)
-    initRender(vm)
+    initLifecycle(vm) // 初始化parent,$children之类的种种
+    initEvents(vm) // 初始化事件_events之类的，使用到createFnInvoker
+    initRender(vm) // 初始化渲染需要的东西，如vm._c,vm.$createElement等，初始化它爸爸的$attrs,$listeners，动态绑定，不让孩子随意更改
     callHook(vm, 'beforeCreate')
     initInjections(vm) // resolve injections before data/props
-    initState(vm)
+    initState(vm) // 将options.data实现双向绑定，并将爸爸的$props动态绑定，不让直接修改
     initProvide(vm) // resolve provide after data/props
     callHook(vm, 'created')
 

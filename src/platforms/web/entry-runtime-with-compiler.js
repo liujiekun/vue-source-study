@@ -13,7 +13,8 @@ const idToTemplate = cached(id => {
   const el = query(id)
   return el && el.innerHTML
 })
-
+// 偷天换日，先存储之前定义的Vue.prototype.$mount，
+// 然后重新定义Vue.prototype.$mount
 const mount = Vue.prototype.$mount
 Vue.prototype.$mount = function (
   el?: string | Element,
@@ -61,7 +62,39 @@ Vue.prototype.$mount = function (
       if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
         mark('compile')
       }
-
+      // 编译的重点，这个函数真尼玛绕
+      // const { compile, compileToFunctions } = createCompiler(baseOptions)
+      // export const createCompiler = createCompilerCreator(function baseCompile (）{
+      // 期间有parse, optimize, generate编译的关键步骤执行
+      // })
+      // export function createCompilerCreator (baseCompile: Function) {
+      //   return function createCompiler (baseOptions: CompilerOptions) {
+      //     function compile (
+      //       template: string,
+      //       options?: CompilerOptions
+      //     ){
+      //      finalOptions.modules = baseOptions.modules
+      //      finalOptions.directives = baseOptions.modules
+      //      finalOptions其他项合并,extend(baseOptions,options)
+      //      期间有baseCompile的执行(template,finalOptions)
+      //     }
+      //     return {
+      //       compile,
+      //       compileToFunctions: createCompileToFunctionFn(compile)
+      //     }
+      //   }
+      // }
+      // export function createCompileToFunctionFn (compile: Function): Function {
+      // 期间有compile的执行
+      //   return function compileToFunctions (
+      //     template: string,
+      //     options?: CompilerOptions,
+      //     vm?: Component
+      //   ): CompiledFunctionResult {
+      //    期间有compile的执行(template,options)
+      //   }
+      // }
+      //compileToFunctions的执行会调用compile函数，compile执行会调baseCompile函数，baseCompile函数执行会执行parse，optimize，generate的函数执行。
       const { render, staticRenderFns } = compileToFunctions(template, {
         outputSourceRange: process.env.NODE_ENV !== 'production',
         shouldDecodeNewlines,

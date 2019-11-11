@@ -211,7 +211,14 @@ export function mountComponent (
   }
   return vm
 }
-
+/*
+  传入的参数
+  child,
+  options.propsData, // updated props
+  options.listeners, // updated listeners
+  vnode, // new parent vnode
+  options.children // new children
+*/
 export function updateChildComponent (
   vm: Component,
   propsData: ?Object,
