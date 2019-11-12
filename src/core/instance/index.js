@@ -20,4 +20,4 @@ eventsMixin(Vue) // $on,$off,$once,$emit
 lifecycleMixin(Vue) // _update(__patch__),$forceUpdate,$destroy
 renderMixin(Vue) // 添加renderHelper(_l,_t,_s,_v等),_render,$nextTick()
 
-export default Vuew
+export default Vue

@@ -27,11 +27,14 @@ Vue.config.getTagNamespace = getTagNamespace
 Vue.config.isUnknownElement = isUnknownElement
 
 // install platform runtime directives & components
-extend(Vue.options.directives, platformDirectives)
-extend(Vue.options.components, platformComponents)
+extend(Vue.options.directives, platformDirectives) // model:{inserted,componentUpdated},show:{bind,update,unbind}
+extend(Vue.options.components, platformComponents) // transition,transitionGroup
 
 // install platform patch function
-Vue.prototype.__patch__ = inBrowser ? patch : noop
+Vue.prototype.__patch__ = inBrowser ? patch : noop // 此处的patch是关联文件，里面包含了nodeOpts,modules:[plateformModules,baseModules]
+// platformModules:[attrs:{create,update},klass:{create,update},domProps:{},events:{},style:{},transition:{create,active,remove}
+// baseModules:[directives:{create,update,destroy},ref:{create,update,destroy}]
+// createPatchFunction
 
 // public mount method
 Vue.prototype.$mount = function (
@@ -39,7 +42,7 @@ Vue.prototype.$mount = function (
   hydrating?: boolean
 ): Component {
   el = el && inBrowser ? query(el) : undefined
-  return mountComponent(this, el, hydrating)
+  return mountComponent(this, el, hydrating) // mountComponent里面包含创建Watcher,Watcher的回调引起render,patch.
 }
 
 // devtools global hook

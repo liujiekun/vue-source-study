@@ -29,7 +29,7 @@ export function initGlobalAPI (Vue: GlobalAPI) {
       )
     }
   }
-  Object.defineProperty(Vue, 'config', configDef)
+  Object.defineProperty(Vue, 'config', configDef) // 初始化全局config
 
   // exposed util methods.
   // NOTE: these are not considered part of the public API - avoid relying on
@@ -46,7 +46,7 @@ export function initGlobalAPI (Vue: GlobalAPI) {
   Vue.nextTick = nextTick
 
   // 2.6 explicit observable API
-  Vue.observable = <T>(obj: T): T => {
+  Vue.observable<T>(obj: T): T => {
     observe(obj)
     return obj
   }
@@ -54,17 +54,21 @@ export function initGlobalAPI (Vue: GlobalAPI) {
   Vue.options = Object.create(null)
 
   ASSET_TYPES.forEach(type => {
-      Vue.options[type + 's'] = Object.create(null) // directives,components,filters
-    })
-  
-    // this is used to identify the "base" constructor to extend all plain-object
-    // components with in Weex's multi-instance scenarios.
-    Vue.options._base = Vue
-  
-    extend(Vue.options.components, builtInComponents)
-  
-    initUse(Vue)
-    initMixin(Vue)
-    initExtend(Vue)
-    initAssetRegisters(Vue)
-  }
+    Vue.options[type + 's'] = Object.create(null) // directives,components,filters
+  })
+
+  // this is used to identify the "base" constructor to extend all plain-object
+  // components with in Weex's multi-instance scenarios.
+  Vue.options._base = Vue
+
+  extend(Vue.options.components, builtInComponents)
+
+  initUse(Vue) // 初始化插件用法Vue.use
+  initMixin(Vue) // Vue.mixin
+  initExtend(Vue) // Vue.extend
+  initAssetRegisters(Vue)
+  // 定义过滤器，组件，指令的方法
+  // Vue.filters('name':function(){})
+  // Vue.component('component',function(){}||Object)
+  // Vue.directive('directive',function(){}||Object)
+}
