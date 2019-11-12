@@ -145,7 +145,10 @@ function genDefaultModel (
       )
     }
   }
-
+  // 第一次知道还可以这么用，v-model.number,v-model.lazy,v-model.trim
+  // v-model.number      使用renderHelper的_n尝试转换number,转换不成功就保持原来的
+  // v-model.lazy  change
+  // trim 去空格
   const { lazy, number, trim } = modifiers || {}
   const needCompositionGuard = !lazy && type !== 'range'
   const event = lazy
@@ -163,6 +166,8 @@ function genDefaultModel (
   }
 
   let code = genAssignmentCode(value, valueExpression)
+  // code 简单版`${value}=${assignment}`
+  // code 复杂版`$set(${res.exp}, ${res.key}, ${assignment})`
   if (needCompositionGuard) {
     code = `if($event.target.composing)return;${code}`
   }

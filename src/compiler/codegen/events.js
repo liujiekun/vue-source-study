@@ -1,8 +1,11 @@
 /* @flow */
 
 const fnExpRE = /^([\w$_]+|\([^)]*?\))\s*=>|^function(?:\s+[\w$]+)?\s*\(/
+// () => {},function xxx()
 const fnInvokeRE = /\([^)]*?\);*$/
+// ();
 const simplePathRE = /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\['[^']*?']|\["[^"]*?"]|\[\d+]|\[[A-Za-z_$][\w$]*])*$/
+// 该正则A.B,A['B'],A["B"],A[2],A[B]
 
 // KeyboardEvent.keyCode aliases
 const keyCodes: { [key: string]: number | Array<number> } = {
@@ -105,10 +108,11 @@ function genHandler (handler: ASTElementHandler | Array<ASTElementHandler>): str
   const isMethodPath = simplePathRE.test(handler.value)
   const isFunctionExpression = fnExpRE.test(handler.value)
   const isFunctionInvocation = simplePathRE.test(handler.value.replace(fnInvokeRE, ''))
+  // 针对@click="handleClick($event)",先把（$event）移除掉
 
   if (!handler.modifiers) {
     if (isMethodPath || isFunctionExpression) {
-      return handler.value
+      return handler.value // 如果你自己的写法中没有（）,则直接返回方法
     }
     /* istanbul ignore if */
     if (__WEEX__ && handler.params) {
@@ -116,32 +120,33 @@ function genHandler (handler: ASTElementHandler | Array<ASTElementHandler>): str
     }
     return `function($event){${
       isFunctionInvocation ? `return ${handler.value}` : handler.value
-    }}` // inline statement
+      }}` // inline statement
+    // 类似你写了handleClick($event),这样包装了一层，它调用之后，再调用你自己的函数
   } else {
     let code = ''
     let genModifierCode = ''
     const keys = []
     for (const key in handler.modifiers) {
-      if (modifierCode[key]) {
+      if (modifierCode[key]) { // 在这个里面的，必须按，不按就返回null
         genModifierCode += modifierCode[key]
         // left/right
         if (keyCodes[key]) {
           keys.push(key)
         }
-      } else if (key === 'exact') {
+      } else if (key === 'exact') { // 如果加了exact，除了modifiers里面的其他的['ctrl', 'shift', 'alt', 'meta']都不能按，按了就返回null
         const modifiers: ASTModifiers = (handler.modifiers: any)
-        genModifierCode += genGuard(
-          ['ctrl', 'shift', 'alt', 'meta']
-            .filter(keyModifier => !modifiers[keyModifier])
-            .map(keyModifier => `$event.${keyModifier}Key`)
-            .join('||')
-        )
+          genModifierCode += genGuard(
+            ['ctrl', 'shift', 'alt', 'meta']
+              .filter(keyModifier => !modifiers[keyModifier])
+              .map(keyModifier => `$event.${keyModifier}Key`)
+              .join('||')
+          )
       } else {
         keys.push(key)
       }
     }
     if (keys.length) {
-      code += genKeyFilter(keys)
+      code += genKeyFilter(keys) // 定义keyCodes中其他的键，如果不是这个键就返回null
     }
     // Make sure modifiers like prevent and stop get executed after key filtering
     if (genModifierCode) {

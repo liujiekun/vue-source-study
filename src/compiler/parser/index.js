@@ -142,11 +142,11 @@ export function parse (
       if (element.elseif || element.else) {
         processIfConditions(element, currentParent)
       } else {
-        if (element.slotScope) {
+        if (element.slotScope) { // 有slotScope的，都是<template scope="">或者slot-scope的
           // scoped slot
           // keep it in the children list so that v-else(-if) conditions can
           // find it as the prev node.
-          const name = element.slotTarget || '"default"'
+          const name = element.slotTarget || '"default"' // 
             ; (currentParent.scopedSlots || (currentParent.scopedSlots = {}))[name] = element
           // <parent>           // curentParent.scopedSlots[header]= element 
           //  <p slot="header"> // element.slotTarget=header
@@ -159,7 +159,9 @@ export function parse (
 
     // final children cleanup
     // filter out scoped slots
-    // 为什么要清理掉呢，等待后续解答
+    // 为什么要清理掉呢，等待后续解答,看147行的官方解释原因
+    // keep it in the children list so that v-else(-if) conditions can
+    // find it as the prev node.
     element.children = element.children.filter(c => !(c: any).slotScope)
     // remove trailing whitespace node again
     trimEndingWhitespace(element)
@@ -613,6 +615,7 @@ function processOnce (el) {
 
 // handle content being passed to a component as slot,
 // e.g. <template slot="xxx">, <div slot-scope="xxx">
+// scope或者slot-scope都是el.slotScope,slot="name"对象slotTarget
 function processSlotContent (el) {
   let slotScope
   if (el.tag === 'template') {

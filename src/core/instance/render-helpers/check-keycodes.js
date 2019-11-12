@@ -17,7 +17,7 @@ function isKeyNotMatch<T> (expect: T | Array<T>, actual: T): boolean {
  * passing in eventKeyName as last argument separately for backwards compat
  */
 export function checkKeyCodes (
-  eventKeyCode: number,
+  eventKeyCode: number, // 50
   key: string,
   builtInKeyCode?: number | Array<number>,
   eventKeyName?: string,
