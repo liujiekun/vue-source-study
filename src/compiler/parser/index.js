@@ -784,7 +784,7 @@ function processAttrs (el) {
     if (dirRE.test(name)) {// /^v-|^@|^:|^\.|^#/ 或者/^v-|^@|^:|^#/
       // mark element as dynamic
       el.hasBindings = true
-      // modifiers，处理native.keypress这种{keypress:true}
+      // modifiers，处理keypress.native,这种{native:true}
       modifiers = parseModifiers(name.replace(dirRE, ''))
       // support .foo shorthand syntax for the .prop modifier
       if (process.env.VBIND_PROP_SHORTHAND && propBindRE.test(name)) {
