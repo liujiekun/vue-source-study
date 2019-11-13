@@ -48,7 +48,7 @@ export function proxy (target: Object, sourceKey: string, key: string) {
 export function initState (vm: Component) {
   vm._watchers = []
   const opts = vm.$options
-  if (opts.props) initProps(vm, opts.props)
+  if (opts.props) initProps(vm, opts.props) // 初始化属性
   if (opts.methods) initMethods(vm, opts.methods)
   if (opts.data) {
     initData(vm)
@@ -74,7 +74,7 @@ function initProps (vm: Component, propsOptions: Object) {
   }
   for (const key in propsOptions) {
     keys.push(key)
-    const value = validateProp(key, propsOptions, propsData, vm)
+    const value = validateProp(key, propsOptions, propsData, vm) // 校验类型，并observe值，返回值
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
       const hyphenatedKey = hyphenate(key)
@@ -85,7 +85,7 @@ function initProps (vm: Component, propsOptions: Object) {
           vm
         )
       }
-      defineReactive(props, key, value, () => {
+      defineReactive(props, key, value, () => { // 该函数的目的是修改值的时候调用，如果不是root节点，不让直接修改。
         if (!isRoot && !isUpdatingChildComponent) {
           warn(
             `Avoid mutating a prop directly since the value will be ` +
@@ -103,7 +103,7 @@ function initProps (vm: Component, propsOptions: Object) {
     // during Vue.extend(). We only need to proxy props defined at
     // instantiation here.
     if (!(key in vm)) {
-      proxy(vm, `_props`, key)
+      proxy(vm, `_props`, key) // 放进代理
     }
   }
   toggleObserving(true)

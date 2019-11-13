@@ -342,8 +342,12 @@ export function deactivateChildComponent (vm: Component, direct?: boolean) {
 
 export function callHook (vm: Component, hook: string) {
   // #7573 disable dep collection when invoking lifecycle hooks
+  // 停止依赖收集
   pushTarget()
-  const handlers = vm.$options[hook]
+  // new Vue({
+  //   beforeCreate(){} 自己写的钩子
+  // })
+  const handlers = vm.$options[hook] 
   const info = `${hook} hook`
   if (handlers) {
     for (let i = 0, j = handlers.length; i < j; i++) {

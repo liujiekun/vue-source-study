@@ -28,27 +28,27 @@ export function validateProp (
   const absent = !hasOwn(propsData, key)
   let value = propsData[key]
   // boolean casting
-  const booleanIndex = getTypeIndex(Boolean, prop.type)
+  const booleanIndex = getTypeIndex(Boolean, prop.type)//有匹配到是Boolean类型
   if (booleanIndex > -1) {
     if (absent && !hasOwn(prop, 'default')) {
-      value = false
-    } else if (value === '' || value === hyphenate(key)) {
+      value = false // 且没有设置默认值，就设置为false
+    } else if (value === '' || value === hyphenate(key)) { // key如果是两个单词，A B-->a-b
       // only cast empty string / same name to boolean if
       // boolean has higher priority
       const stringIndex = getTypeIndex(String, prop.type)
-      if (stringIndex < 0 || booleanIndex < stringIndex) {
+      if (stringIndex < 0 || booleanIndex < stringIndex) { // 同样查到的boolean和string，value为空设为true
         value = true
       }
     }
   }
   // check default value
   if (value === undefined) {
-    value = getPropDefaultValue(vm, prop, key)
+    value = getPropDefaultValue(vm, prop, key) // 先设定给default，再查找propsData，找到替换，找不到如果default是函数，就执行结果返回
     // since the default value is a fresh copy,
     // make sure to observe it.
     const prevShouldObserve = shouldObserve
     toggleObserving(true)
-    observe(value)
+    observe(value) // 将prop做成动态响应的
     toggleObserving(prevShouldObserve)
   }
   if (
@@ -188,7 +188,7 @@ function isSameType (a, b) {
   return getType(a) === getType(b)
 }
 
-function getTypeIndex (type, expectedTypes): number {
+function getTypeIndex (type, expectedTypes): number { // props:{key:{type:type|[],default:''}}
   if (!Array.isArray(expectedTypes)) {
     return isSameType(expectedTypes, type) ? 0 : -1
   }

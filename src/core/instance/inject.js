@@ -52,19 +52,19 @@ export function resolveInject (inject: any, vm: Component): ?Object {
       let source = vm
       while (source) {
         if (source._provided && hasOwn(source._provided, provideKey)) {
-          result[key] = source._provided[provideKey]
+          result[key] = source._provided[provideKey] // 找到赋值break，现在source还有值呢
           break
         }
         source = source.$parent
-      }
+      } // 循环向它的父辈组件查找
       if (!source) {
-        if ('default' in inject[key]) {
+        if ('default' in inject[key]) { // 如果有default，就将default赋值给result[key]
           const provideDefault = inject[key].default
           result[key] = typeof provideDefault === 'function'
             ? provideDefault.call(vm)
             : provideDefault
         } else if (process.env.NODE_ENV !== 'production') {
-          warn(`Injection "${key}" not found`, vm)
+          warn(`Injection "${key}" not found`, vm) // 两者都没有就警告
         }
       }
     }
