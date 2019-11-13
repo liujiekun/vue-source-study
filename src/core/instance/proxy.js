@@ -54,12 +54,12 @@ if (process.env.NODE_ENV !== 'production') {
 
   const hasHandler = {
     has (target, key) {
-      const has = key in target
+      const has = key in target // Vue本身的属性
       const isAllowed = allowedGlobals(key) ||
-        (typeof key === 'string' && key.charAt(0) === '_' && !(key in target.$data))
-      if (!has && !isAllowed) {
-        if (key in target.$data) warnReservedPrefix(target, key)
-        else warnNonPresent(target, key)
+        (typeof key === 'string' && key.charAt(0) === '_' && !(key in target.$data)) // $data的属性
+      if (!has && !isAllowed) { // 如果不在Vue本身，且key以_开头，在$data里面
+        if (key in target.$data) warnReservedPrefix(target, key) // 在$data里面报命名警告
+        else warnNonPresent(target, key) // 报找不到数据警告
       }
       return has || !isAllowed
     }
@@ -76,12 +76,12 @@ if (process.env.NODE_ENV !== 'production') {
   }
 
   initProxy = function initProxy (vm) {
-    if (hasProxy) {
+    if (hasProxy) { // 检测是否支持Proxy
       // determine which proxy handler to use
       const options = vm.$options
       const handlers = options.render && options.render._withStripped
         ? getHandler
-        : hasHandler
+        : hasHandler // 走这里
       vm._renderProxy = new Proxy(vm, handlers)
     } else {
       vm._renderProxy = vm

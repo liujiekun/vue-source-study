@@ -21,7 +21,7 @@ import {
 export let activeInstance: any = null
 export let isUpdatingChildComponent: boolean = false
 
-export function setActiveInstance(vm: Component) {
+export function setActiveInstance (vm: Component) {
   const prevActiveInstance = activeInstance
   activeInstance = vm
   return () => {
@@ -41,10 +41,10 @@ export function initLifecycle (vm: Component) {
     parent.$children.push(vm)
   }
 
-  vm.$parent = parent
-  vm.$root = parent ? parent.$root : vm
+  vm.$parent = parent // 父组件
+  vm.$root = parent ? parent.$root : vm // 当前组件树根节点
 
-  vm.$children = []
+  vm.$children = [] // 存储该节点的直接子组件，不是响应式，不保证顺序
   vm.$refs = {}
 
   vm._watcher = null

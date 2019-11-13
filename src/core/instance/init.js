@@ -29,7 +29,7 @@ export function initMixin (Vue: Class<Component>) {
     // a flag to avoid this being observed
     vm._isVue = true
     // merge options
-    
+
     if (options && options._isComponent) {// 是组件，走上面，不是组件走下面
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
@@ -44,7 +44,7 @@ export function initMixin (Vue: Class<Component>) {
     }
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
-      initProxy(vm)
+      initProxy(vm) // 做Proxy代理
     } else {
       vm._renderProxy = vm
     }
@@ -93,8 +93,8 @@ export function initInternalComponent (vm: Component, options: InternalComponent
 
 export function resolveConstructorOptions (Ctor: Class<Component>) { // 构造器就是Vue
   let options = Ctor.options //现在的Vue.options {comonents:{},filters:{},directives:{},_base=Vue}
-  if (Ctor.super) {
-    const superOptions = resolveConstructorOptions(Ctor.super)
+  if (Ctor.super) { // 什么样的会有super?
+    const superOptions = resolveConstructorOptions(Ctor.super) // 如果他有super会继续递归
     const cachedSuperOptions = Ctor.superOptions
     if (superOptions !== cachedSuperOptions) {
       // super option changed,

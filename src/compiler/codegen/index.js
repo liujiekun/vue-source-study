@@ -68,9 +68,9 @@ export function genElement (el: ASTElement, state: CodegenState): string {
     return genFor(el, state)
   } else if (el.if && !el.ifProcessed) {
     return genIf(el, state)
-  } else if (el.tag === 'template' && !el.slotTarget && !state.pre) {
+  } else if (el.tag === 'template' && !el.slotTarget && !state.pre) { // 针对父组件
     return genChildren(el, state) || 'void 0'
-  } else if (el.tag === 'slot') { // el.slotName
+  } else if (el.tag === 'slot') { // el.slotName，针对子组件
     return genSlot(el, state)
   } else {
     // component or element
@@ -273,7 +273,7 @@ export function genData (el: ASTElement, state: CodegenState): string {
     data += `slot:${el.slotTarget},`
   }
   // scoped slots
-  // 代表孩子有slot="name",
+  // 代表孩子有slot="name | default",主要是有scope | slot-scope,
   if (el.scopedSlots) {
     data += `${genScopedSlots(el, el.scopedSlots, state)},`
   }
@@ -556,7 +556,7 @@ export function genComment (comment: ASTText): string {
 function genSlot (el: ASTElement, state: CodegenState): string {
   const slotName = el.slotName || '"default"'
   const children = genChildren(el, state)
-  let res = `_t(${slotName}${children ? `,${children}` : ''}`
+  let res = `_t(${slotName}${children ? `,${children}` : ''}` // _t:renderSlot
   const attrs = el.attrs || el.dynamicAttrs
     ? genProps((el.attrs || []).concat(el.dynamicAttrs || []).map(attr => ({
       // slot props are camelized

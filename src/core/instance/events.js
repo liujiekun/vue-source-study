@@ -13,7 +13,7 @@ export function initEvents (vm: Component) {
   vm._events = Object.create(null)
   vm._hasHookEvent = false
   // init parent attached events
-  const listeners = vm.$options._parentListeners
+  const listeners = vm.$options._parentListeners // 是它爸爸的监听事件吗？
   if (listeners) {
     updateComponentListeners(vm, listeners)
   }

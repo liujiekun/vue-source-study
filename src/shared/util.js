@@ -4,26 +4,26 @@ export const emptyObject = Object.freeze({})
 
 // These helpers produce better VM code in JS engines due to their
 // explicitness and function inlining.
-export function isUndef (v: any): boolean %checks {
+export function isUndef (v: any): boolean % checks {
   return v === undefined || v === null
 }
 
-export function isDef (v: any): boolean %checks {
+export function isDef (v: any): boolean % checks {
   return v !== undefined && v !== null
 }
 
-export function isTrue (v: any): boolean %checks {
+export function isTrue (v: any): boolean % checks {
   return v === true
 }
 
-export function isFalse (v: any): boolean %checks {
+export function isFalse (v: any): boolean % checks {
   return v === false
 }
 
 /**
  * Check if value is primitive.
  */
-export function isPrimitive (value: any): boolean %checks {
+export function isPrimitive (value: any): boolean % checks {
   return (
     typeof value === 'string' ||
     typeof value === 'number' ||
@@ -38,7 +38,7 @@ export function isPrimitive (value: any): boolean %checks {
  * Objects from primitive values when we know the value
  * is a JSON-compliant type.
  */
-export function isObject (obj: mixed): boolean %checks {
+export function isObject (obj: mixed): boolean % checks {
   return obj !== null && typeof obj === 'object'
 }
 
@@ -114,7 +114,7 @@ export function makeMap (
   }
   return expectsLowerCase
     ? val => map[val.toLowerCase()]
-    : val => map[val]
+    : val => map[val] // 根据传入的str生成的map，并返回一个(val)=>map[val]，以确定val是否在生成的map中
 }
 
 /**
@@ -255,7 +255,7 @@ export function toObject (arr: Array<any>): Object {
  * Stubbing args to make Flow happy without leaving useless transpiled code
  * with ...rest (https://flow.org/blog/2017/05/07/Strict-Function-Call-Arity/).
  */
-export function noop (a?: any, b?: any, c?: any) {}
+export function noop (a?: any, b?: any, c?: any) { }
 
 /**
  * Always return false.

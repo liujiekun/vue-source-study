@@ -146,10 +146,10 @@ export function parse (
           // scoped slot
           // keep it in the children list so that v-else(-if) conditions can
           // find it as the prev node.
-          const name = element.slotTarget || '"default"' // 
+          const name = element.slotTarget || '"default"' // 有slot的就放到对应的slot里面，如果没有放default
             ; (currentParent.scopedSlots || (currentParent.scopedSlots = {}))[name] = element
           // <parent>           // curentParent.scopedSlots[header]= element 
-          //  <p slot="header"> // element.slotTarget=header
+          //  <p slot="header" scope="" | slot-scope=""> // element.slotTarget=header
           // </parent>
         }
         currentParent.children.push(element)
