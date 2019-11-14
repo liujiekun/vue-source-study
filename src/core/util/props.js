@@ -18,7 +18,7 @@ type PropOptions = {
   validator: ?Function
 };
 
-export function validateProp (
+export function validateProp(
   key: string,
   propOptions: Object,
   propsData: Object,
@@ -55,7 +55,7 @@ export function validateProp (
     process.env.NODE_ENV !== 'production' &&
     // skip validation for weex recycle-list child component props
     !(__WEEX__ && isObject(value) && ('@binding' in value))
-  ) {
+  ) { // 眼看就要返回了，这里又进行了值类型的校验
     assertProp(prop, key, value, vm, absent)
   }
   return value
@@ -64,7 +64,7 @@ export function validateProp (
 /**
  * Get the default value of a prop.
  */
-function getPropDefaultValue (vm: ?Component, prop: PropOptions, key: string): any {
+function getPropDefaultValue(vm: ?Component, prop: PropOptions, key: string): any {
   // no default, return undefined
   if (!hasOwn(prop, 'default')) {
     return undefined
@@ -97,47 +97,47 @@ function getPropDefaultValue (vm: ?Component, prop: PropOptions, key: string): a
 /**
  * Assert whether a prop is valid.
  */
-function assertProp (
+function assertProp(
   prop: PropOptions,
   name: string,
   value: any,
   vm: ?Component,
   absent: boolean
 ) {
-  if (prop.required && absent) {
+  if (prop.required && absent) { // required
     warn(
       'Missing required prop: "' + name + '"',
       vm
     )
     return
   }
-  if (value == null && !prop.required) {
+  if (value == null && !prop.required) { // 等于null,也没必须要求
     return
   }
   let type = prop.type
-  let valid = !type || type === true
+  let valid = !type || type === true // type不写或者写true，默认算通过
   const expectedTypes = []
   if (type) {
     if (!Array.isArray(type)) {
       type = [type]
     }
     for (let i = 0; i < type.length && !valid; i++) {
-      const assertedType = assertType(value, type[i])
-      expectedTypes.push(assertedType.expectedType || '')
+      const assertedType = assertType(value, type[i]) // 通过value和设定的type进行比对
+      expectedTypes.push(assertedType.expectedType || '') // 收集所有设定的type
       valid = assertedType.valid
     }
   }
 
-  if (!valid) {
+  if (!valid) { // 如果校验没通过，这个是系统的校验
     warn(
-      getInvalidTypeMessage(name, value, expectedTypes),
+      getInvalidTypeMessage(name, value, expectedTypes), // 拼接提示语
       vm
     )
     return
   }
   const validator = prop.validator
   if (validator) {
-    if (!validator(value)) {
+    if (!validator(value)) { // 用户自己写了校验函数
       warn(
         'Invalid prop: custom validator check failed for prop "' + name + '".',
         vm
@@ -148,7 +148,7 @@ function assertProp (
 
 const simpleCheckRE = /^(String|Number|Boolean|Function|Symbol)$/
 
-function assertType (value: any, type: Function): {
+function assertType(value: any, type: Function): {
   valid: boolean;
   expectedType: string;
 } {
@@ -179,16 +179,17 @@ function assertType (value: any, type: Function): {
  * because a simple equality check will fail when running
  * across different vms / iframes.
  */
-function getType (fn) {
+function getType(fn) {
+  // 利用Boolean，String,Array,Function等的构造函数的toString来获取名字
   const match = fn && fn.toString().match(/^\s*function (\w+)/)
   return match ? match[1] : ''
 }
 
-function isSameType (a, b) {
+function isSameType(a, b) {
   return getType(a) === getType(b)
 }
 
-function getTypeIndex (type, expectedTypes): number { // props:{key:{type:type|[],default:''}}
+function getTypeIndex(type, expectedTypes): number { // props:{key:{type:type|[],default:''}}
   if (!Array.isArray(expectedTypes)) {
     return isSameType(expectedTypes, type) ? 0 : -1
   }
@@ -200,7 +201,7 @@ function getTypeIndex (type, expectedTypes): number { // props:{key:{type:type|[
   return -1
 }
 
-function getInvalidTypeMessage (name, value, expectedTypes) {
+function getInvalidTypeMessage(name, value, expectedTypes) {
   let message = `Invalid prop: type check failed for prop "${name}".` +
     ` Expected ${expectedTypes.map(capitalize).join(', ')}`
   const expectedType = expectedTypes[0]
@@ -209,8 +210,8 @@ function getInvalidTypeMessage (name, value, expectedTypes) {
   const receivedValue = styleValue(value, receivedType)
   // check if we need to specify expected value
   if (expectedTypes.length === 1 &&
-      isExplicable(expectedType) &&
-      !isBoolean(expectedType, receivedType)) {
+    isExplicable(expectedType) &&
+    !isBoolean(expectedType, receivedType)) {
     message += ` with value ${expectedValue}`
   }
   message += `, got ${receivedType} `
@@ -221,7 +222,7 @@ function getInvalidTypeMessage (name, value, expectedTypes) {
   return message
 }
 
-function styleValue (value, type) {
+function styleValue(value, type) {
   if (type === 'String') {
     return `"${value}"`
   } else if (type === 'Number') {
@@ -231,11 +232,11 @@ function styleValue (value, type) {
   }
 }
 
-function isExplicable (value) {
+function isExplicable(value) {
   const explicitTypes = ['string', 'number', 'boolean']
   return explicitTypes.some(elem => value.toLowerCase() === elem)
 }
 
-function isBoolean (...args) {
+function isBoolean(...args) {
   return args.some(elem => elem.toLowerCase() === 'boolean')
 }

@@ -57,7 +57,7 @@ export default class Watcher {
     // options
     if (options) {
       this.deep = !!options.deep
-      this.user = !!options.user
+      this.user = !!options.user //$watch的标识吗？
       this.lazy = !!options.lazy
       this.sync = !!options.sync
       this.before = options.before

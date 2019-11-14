@@ -4,16 +4,16 @@ import { hasOwn } from 'shared/util'
 import { warn, hasSymbol } from '../util/index'
 import { defineReactive, toggleObserving } from '../observer/index'
 
-export function initProvide (vm: Component) {
+export function initProvide(vm: Component) {
   const provide = vm.$options.provide
   if (provide) {
-    vm._provided = typeof provide === 'function'
+    vm._provided = typeof provide === 'function' // provide可以是对象，可以是返回对象的函数
       ? provide.call(vm)
       : provide
   }
 }
 
-export function initInjections (vm: Component) {
+export function initInjections(vm: Component) {
   const result = resolveInject(vm.$options.inject, vm)
   if (result) {
     toggleObserving(false)
@@ -36,7 +36,7 @@ export function initInjections (vm: Component) {
   }
 }
 
-export function resolveInject (inject: any, vm: Component): ?Object {
+export function resolveInject(inject: any, vm: Component): ?Object {
   if (inject) {
     // inject is :any because flow is not smart enough to figure out cached
     const result = Object.create(null)
