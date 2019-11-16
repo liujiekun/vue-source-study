@@ -164,7 +164,7 @@ export function mountComponent (
       }
     }
   }
-  callHook(vm, 'beforeMount')
+  callHook(vm, 'beforeMount')// 触发beforeMount钩子
 
   let updateComponent
   /* istanbul ignore if */

@@ -24,17 +24,17 @@ const methodsToPatch = [
 methodsToPatch.forEach(function (method) {
   // cache original method
   const original = arrayProto[method]
-  def(arrayMethods, method, function mutator (...args) {
-    const result = original.apply(this, args)
+  def(arrayMethods, method, function mutator(...args) {
+    const result = original.apply(this, args) //还调用原型的方法
     const ob = this.__ob__
     let inserted
     switch (method) {
       case 'push':
       case 'unshift':
-        inserted = args
+        inserted = args // 数组添加了新成员，要重新observe一下
         break
       case 'splice':
-        inserted = args.slice(2)
+        inserted = args.slice(2) // splice(0,1,替换的新元素)，要重新observe
         break
     }
     if (inserted) ob.observeArray(inserted)

@@ -130,20 +130,20 @@ function initData(vm: Component) {
   while (i--) {
     const key = keys[i]
     if (process.env.NODE_ENV !== 'production') {
-      if (methods && hasOwn(methods, key)) {
+      if (methods && hasOwn(methods, key)) { // 校验方法是否与data重名
         warn(
           `Method "${key}" has already been defined as a data property.`,
           vm
         )
       }
     }
-    if (props && hasOwn(props, key)) {
+    if (props && hasOwn(props, key)) {  // 校验数据是否与prop重名
       process.env.NODE_ENV !== 'production' && warn(
         `The data property "${key}" is already declared as a prop. ` +
         `Use prop default value instead.`,
         vm
       )
-    } else if (!isReserved(key)) {
+    } else if (!isReserved(key)) { // 且不能是系统保留的,$或者_
       proxy(vm, `_data`, key)
     }
   }
@@ -313,7 +313,7 @@ function createWatcher(
   //     deep:true
   //   }
   // }
-  if (isPlainObject(handler)) { 
+  if (isPlainObject(handler)) {
     options = handler
     handler = handler.handler
   }
