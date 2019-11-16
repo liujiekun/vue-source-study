@@ -195,8 +195,8 @@ export function genFor (
 ): string {
   const exp = el.for
   const alias = el.alias
-  const iterator1 = el.iterator1 ? `,${el.iterator1}` : ''
-  const iterator2 = el.iterator2 ? `,${el.iterator2}` : ''
+  const iterator1 = el.iterator1 ? `,${el.iterator1}` : '' // 加上逗号当参数了
+  const iterator2 = el.iterator2 ? `,${el.iterator2}` : '' // 加上逗号当参数了
 
   if (process.env.NODE_ENV !== 'production' &&
     state.maybeComponent(el) &&
@@ -623,6 +623,6 @@ function generateValue (value) {
 // #3895, #4268
 function transformSpecialNewlines (text: string): string {
   return text
-    .replace(/\u2028/g, '\\u2028')
-    .replace(/\u2029/g, '\\u2029')
+    .replace(/\u2028/g, '\\u2028') // backspace退回键
+    .replace(/\u2029/g, '\\u2029') // tab键
 }

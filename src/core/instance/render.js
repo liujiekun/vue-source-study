@@ -16,13 +16,14 @@ import VNode, { createEmptyVNode } from '../vdom/vnode'
 
 import { isUpdatingChildComponent } from './lifecycle'
 
-export function initRender(vm: Component) {
+export function initRender (vm: Component) {
   vm._vnode = null // the root of the child tree
   vm._staticTrees = null // v-once cached trees
   const options = vm.$options
   const parentVnode = vm.$vnode = options._parentVnode // the placeholder node in parent tree
   const renderContext = parentVnode && parentVnode.context
   vm.$slots = resolveSlots(options._renderChildren, renderContext)
+  // 找到父组件的_renderChildren中，所有slot="XXX"的节点，分门归类
   vm.$scopedSlots = emptyObject
   // bind the createElement fn to this instance
   // so that we get proper render context inside it.
@@ -54,11 +55,11 @@ export function initRender(vm: Component) {
 export let currentRenderingInstance: Component | null = null
 
 // for testing only
-export function setCurrentRenderingInstance(vm: Component) {
+export function setCurrentRenderingInstance (vm: Component) {
   currentRenderingInstance = vm
 }
 
-export function renderMixin(Vue: Class<Component>) {
+export function renderMixin (Vue: Class<Component>) {
   // install runtime convenience helpers
   // 把所有渲染用到的方法统统加载到Vue.prototype上
   installRenderHelpers(Vue.prototype)
@@ -73,9 +74,9 @@ export function renderMixin(Vue: Class<Component>) {
 
     if (_parentVnode) {
       vm.$scopedSlots = normalizeScopedSlots(
-        _parentVnode.data.scopedSlots,
-        vm.$slots,
-        vm.$scopedSlots
+        _parentVnode.data.scopedSlots, // 它放在爸爸身上的scope || slot-scope的东西
+        vm.$slots, // 它自己的slot的东西
+        vm.$scopedSlots // 孩子放在它身上的
       )
     }
 

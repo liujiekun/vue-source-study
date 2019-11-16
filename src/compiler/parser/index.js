@@ -614,7 +614,7 @@ function processOnce (el) {
 }
 
 // handle content being passed to a component as slot,
-// e.g. <template slot="xxx">, <div slot-scope="xxx">
+// e.g. <template scope="xxx">, <div slot-scope="xxx">
 // scope或者slot-scope都是el.slotScope,slot="name"对象slotTarget
 function processSlotContent (el) {
   let slotScope
@@ -798,9 +798,9 @@ function processAttrs (el) {
       if (bindRE.test(name)) { // v-bind
         name = name.replace(bindRE, '')
         value = parseFilters(value)
-        isDynamic = dynamicArgRE.test(name)
+        isDynamic = dynamicArgRE.test(name) // 动态属性，不敢相信:[key]="属性名"
         if (isDynamic) {
-          name = name.slice(1, -1)
+          name = name.slice(1, -1) // 去左右中括号
         }
         if (
           process.env.NODE_ENV !== 'production' &&
@@ -869,6 +869,7 @@ function processAttrs (el) {
         isDynamic = dynamicArgRE.test(name) //   /^\[.*\]$/
         if (isDynamic) {
           name = name.slice(1, -1) // 会有动态的@["click"] = handleClick写法吗，这个slice是去掉中括号
+          // 20191116，我日，真的有@[event] = 'handleClick'这种变态的写法
         }
         addHandler(el, name, value, modifiers, false, warn, list[i], isDynamic)
       } else { // normal directives

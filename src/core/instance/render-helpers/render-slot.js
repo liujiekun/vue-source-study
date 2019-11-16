@@ -11,7 +11,7 @@ export function renderSlot (
   props: ?Object,
   bindObject: ?Object
 ): ?Array<VNode> {
-  const scopedSlotFn = this.$scopedSlots[name] // slot slot-scope
+  const scopedSlotFn = this.$scopedSlots[name] // scope="scope" slot-scope="scope"
   let nodes
   if (scopedSlotFn) { // scoped slot
     props = props || {}
@@ -26,13 +26,13 @@ export function renderSlot (
     }
     nodes = scopedSlotFn(props) || fallback
   } else { // slot = "XXX"
-    nodes = this.$slots[name] || fallback
+    nodes = this.$slots[name] || fallback // <p slot="xxx"></p>
   }
 
-  const target = props && props.slot
+  const target = props && props.slot // 如果slot-scope 的东西，有属性slot然后就
   if (target) {
     return this.$createElement('template', { slot: target }, nodes)
   } else {
-    return nodes
+    return nodes // 否则return nodes
   }
 }

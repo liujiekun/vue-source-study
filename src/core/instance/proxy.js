@@ -56,9 +56,10 @@ if (process.env.NODE_ENV !== 'production') {
     has (target, key) {
       const has = key in target // Vue本身的属性
       const isAllowed = allowedGlobals(key) ||
-        (typeof key === 'string' && key.charAt(0) === '_' && !(key in target.$data)) // $data的属性
-      if (!has && !isAllowed) { // 如果不在Vue本身，且key以_开头，在$data里面
-        if (key in target.$data) warnReservedPrefix(target, key) // 在$data里面报命名警告
+        (typeof key === 'string' && key.charAt(0) === '_' && !(key in target.$data))
+      // 在允许的数据类型，或者是以_开头，并且不在$data的属性
+      if (!has && !isAllowed) { // 如果不在Vue本身，或者key以_开头，或者在$data里面
+        if (key in target.$data) warnReservedPrefix(target, key) // 在$data里面报命名警告，不要这样
         else warnNonPresent(target, key) // 报找不到数据警告
       }
       return has || !isAllowed

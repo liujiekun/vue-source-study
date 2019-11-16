@@ -157,6 +157,7 @@ function mergeHook (
   return res
     ? dedupeHooks(res)
     : res
+  // 保证钩子函数出来都是数组，当然如果你愿意钩子也可以直接写成数组
 }
 
 function dedupeHooks (hooks) {
@@ -239,23 +240,23 @@ strats.watch = function (
  * Other object hashes.
  */
 strats.props =
-strats.methods =
-strats.inject =
-strats.computed = function (
-  parentVal: ?Object,
-  childVal: ?Object,
-  vm?: Component,
-  key: string
-): ?Object {
-  if (childVal && process.env.NODE_ENV !== 'production') {
-    assertObjectType(key, childVal, vm)
+  strats.methods =
+  strats.inject =
+  strats.computed = function (
+    parentVal: ?Object,
+    childVal: ?Object,
+    vm?: Component,
+    key: string
+  ): ?Object {
+    if (childVal && process.env.NODE_ENV !== 'production') {
+      assertObjectType(key, childVal, vm)
+    }
+    if (!parentVal) return childVal
+    const ret = Object.create(null)
+    extend(ret, parentVal)
+    if (childVal) extend(ret, childVal)
+    return ret
   }
-  if (!parentVal) return childVal
-  const ret = Object.create(null)
-  extend(ret, parentVal)
-  if (childVal) extend(ret, childVal)
-  return ret
-}
 strats.provide = mergeDataOrFn
 
 /**
@@ -413,6 +414,7 @@ export function mergeOptions (
     if (child.mixins) {
       for (let i = 0, l = child.mixins.length; i < l; i++) {
         parent = mergeOptions(parent, child.mixins[i], vm)
+        // 孩子组件中如果有mixins，先把mixins中的东西交给它爸爸，然后它爸爸再和组件对比，如果组件中有相同的东东，就用儿子的取代爸爸的，相当于组件中的可以取代mixins中的东西
       }
     }
   }
@@ -428,8 +430,8 @@ export function mergeOptions (
     }
   }
   function mergeField (key) {
-    const strat = strats[key] || defaultStrat
-    options[key] = strat(parent[key], child[key], vm, key)
+    const strat = strats[key] || defaultStrat // 合并策略
+    options[key] = strat(parent[key], child[key], vm, key) // 用合并策略合并对应的key
   }
   return options
 }
@@ -449,7 +451,7 @@ export function resolveAsset (
   if (typeof id !== 'string') {
     return
   }
-   // 这里不仅仅是查找组件使用，还可以查找options下面的任何资源，比如常见的directives,components
+  // 这里不仅仅是查找组件使用，还可以查找options下面的任何资源，比如常见的directives,components
   const assets = options[type]
   // check local registration variations first
   //一毛一样的组件，肯定匹配

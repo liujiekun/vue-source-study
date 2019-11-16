@@ -238,7 +238,7 @@ export function extend (to: Object, _from: ?Object): Object {
 /**
  * Merge an Array of Objects into a single Object.
  */
-export function toObject (arr: Array<any>): Object {
+export function toObject (arr: Array<any>): Object { // 浅复制将数组扩展成对象
   const res = {}
   for (let i = 0; i < arr.length; i++) {
     if (arr[i]) {
@@ -283,7 +283,7 @@ export function genStaticKeys (modules: Array<ModuleOptions>): string {
  * if they are plain objects, do they have the same shape?
  */
 export function looseEqual (a: any, b: any): boolean {
-  if (a === b) return true
+  if (a === b) return true // null===null,undefined===undefined
   const isObjectA = isObject(a)
   const isObjectB = isObject(b)
   if (isObjectA && isObjectB) {

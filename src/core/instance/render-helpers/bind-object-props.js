@@ -29,7 +29,7 @@ export function bindObjectProps (
       )
     } else {
       if (Array.isArray(value)) {
-        value = toObject(value)
+        value = toObject(value) // 如果是数组，转化成对象
       }
       let hash
       for (const key in value) {

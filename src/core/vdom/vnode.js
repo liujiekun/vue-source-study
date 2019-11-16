@@ -29,7 +29,7 @@ export default class VNode {
   devtoolsMeta: ?Object; // used to store functional render context for devtools
   fnScopeId: ?string; // functional scope id support
 
-  constructor (
+  constructor(
     tag?: string,
     data?: VNodeData,
     children?: ?Array<VNode>,
@@ -74,7 +74,7 @@ export default class VNode {
 export const createEmptyVNode = (text: string = '') => {
   const node = new VNode()
   node.text = text
-  node.isComment = true
+  node.isComment = true // 注释节点标识
   return node
 }
 
