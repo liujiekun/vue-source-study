@@ -164,11 +164,12 @@ export function getData(data: Function, vm: Component): any {
   }
 }
 
-const computedWatcherOptions = { lazy: true }
+const computedWatcherOptions = { lazy: true } // computed数据的watcher标识
 
 function initComputed(vm: Component, computed: Object) {
   // $flow-disable-line
   const watchers = vm._computedWatchers = Object.create(null)
+  // computed产生的watcher放在_computedWatchers里面
   // computed properties are just getters during SSR
   const isSSR = isServerRendering()
 
@@ -212,15 +213,16 @@ export function defineComputed(
   key: string,
   userDef: Object | Function
 ) {
-  const shouldCache = !isServerRendering()
-  if (typeof userDef === 'function') {
+  const shouldCache = !isServerRendering() // 是否服务端渲染
+  if (typeof userDef === 'function') { // 不是对象，而是函数的话，默认作为get
     sharedPropertyDefinition.get = shouldCache
-      ? createComputedGetter(key)
-      : createGetterInvoker(userDef)
+      ? createComputedGetter(key) // 浏览器端渲染
+      : createGetterInvoker(userDef) // 服务端渲染，直接userDef调用了，不缓存
     sharedPropertyDefinition.set = noop
   } else {
     sharedPropertyDefinition.get = userDef.get
       ? shouldCache && userDef.cache !== false
+        // computed对象里，除了get,set还可以加cache，新发现
         ? createComputedGetter(key)
         : createGetterInvoker(userDef.get)
       : noop
@@ -246,7 +248,7 @@ function createComputedGetter(key) {
         watcher.evaluate()
       }
       if (Dep.target) {
-        watcher.depend()
+        watcher.depend() // 收集依赖
       }
       return watcher.value
     }
@@ -362,7 +364,7 @@ export function stateMixin(Vue: Class<Component>) {
       return createWatcher(vm, expOrFn, cb, options)
     }
     options = options || {}
-    options.user = true
+    options.user = true // watch创建的watcher的标识
     const watcher = new Watcher(vm, expOrFn, cb, options)
     if (options.immediate) {
       try {

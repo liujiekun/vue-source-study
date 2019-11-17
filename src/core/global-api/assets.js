@@ -3,7 +3,7 @@
 import { ASSET_TYPES } from 'shared/constants'
 import { isPlainObject, validateComponentName } from '../util/index'
 
-export function initAssetRegisters (Vue: GlobalAPI) {
+export function initAssetRegisters(Vue: GlobalAPI) {
   /**
    * Create asset registration methods.
    */
@@ -22,6 +22,7 @@ export function initAssetRegisters (Vue: GlobalAPI) {
         if (type === 'component' && isPlainObject(definition)) {
           definition.name = definition.name || id
           definition = this.options._base.extend(definition)
+          // 组件通过this.options._base.extentd(definition)将组件对象转化成了与Vue具有同样功能的构造函数
         }
         if (type === 'directive' && typeof definition === 'function') {
           definition = { bind: definition, update: definition }

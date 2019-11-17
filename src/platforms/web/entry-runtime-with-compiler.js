@@ -33,10 +33,10 @@ Vue.prototype.$mount = function (
   const options = this.$options
   // resolve template/el and convert to render function
   if (!options.render) {
-    let template = options.template
+    let template = options.template // 先找options里面的template
     if (template) {
-      if (typeof template === 'string') {
-        if (template.charAt(0) === '#') {
+      if (typeof template === 'string') { // 直接写html
+        if (template.charAt(0) === '#') { // 也可以写id
           template = idToTemplate(template)
           /* istanbul ignore if */
           if (process.env.NODE_ENV !== 'production' && !template) {
@@ -54,7 +54,7 @@ Vue.prototype.$mount = function (
         }
         return this
       }
-    } else if (el) {
+    } else if (el) { // 否则找el
       template = getOuterHTML(el)
     }
     if (template) {
@@ -119,7 +119,7 @@ Vue.prototype.$mount = function (
  * Get outerHTML of elements, taking care
  * of SVG elements in IE as well.
  */
-function getOuterHTML (el: Element): string {
+function getOuterHTML(el: Element): string {
   if (el.outerHTML) {
     return el.outerHTML
   } else {
