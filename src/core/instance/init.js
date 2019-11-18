@@ -12,7 +12,7 @@ import { extend, mergeOptions, formatComponentName } from '../util/index'
 
 let uid = 0
 
-export function initMixin (Vue: Class<Component>) {
+export function initMixin(Vue: Class<Component>) {
   Vue.prototype._init = function (options?: Object) {
     const vm: Component = this
     // a uid
@@ -72,14 +72,20 @@ export function initMixin (Vue: Class<Component>) {
   }
 }
 
-export function initInternalComponent (vm: Component, options: InternalComponentOptions) {
+export function initInternalComponent(vm: Component, options: InternalComponentOptions) {
+  // options:{
+  //   _isComponent: true,
+  //   _parentVnode: vnode,
+  //   parent
+  // }
   const opts = vm.$options = Object.create(vm.constructor.options)
+  // 真是神奇，vm.constructor.options居然是通过resolve父组件的coponents,在占位组件上就拿到了子组件的真正options，然后真正初始化子组件时，竟然是通过原型拿到占位组件的options,被骗了这么久。。。
   // doing this because it's faster than dynamic enumeration.
-  const parentVnode = options._parentVnode
-  opts.parent = options.parent
+  const parentVnode = options._parentVnode // 占位vnode
+  opts.parent = options.parent // 父组件实例
   opts._parentVnode = parentVnode
 
-  const vnodeComponentOptions = parentVnode.componentOptions
+  const vnodeComponentOptions = parentVnode.componentOptions // { Ctor, propsData, listeners, tag, children }
   opts.propsData = vnodeComponentOptions.propsData
   opts._parentListeners = vnodeComponentOptions.listeners
   opts._renderChildren = vnodeComponentOptions.children
@@ -91,15 +97,15 @@ export function initInternalComponent (vm: Component, options: InternalComponent
   }
 }
 
-export function resolveConstructorOptions (Ctor: Class<Component>) { // 构造器就是Vue
+export function resolveConstructorOptions(Ctor: Class<Component>) { // 构造器就是Vue
   let options = Ctor.options //现在的Vue.options {comonents:{},filters:{},directives:{},_base=Vue}
   if (Ctor.super) { // 什么样的会有super?
-    const superOptions = resolveConstructorOptions(Ctor.super) // 如果他有super会继续递归
-    const cachedSuperOptions = Ctor.superOptions
+    const superOptions = resolveConstructorOptions(Ctor.super) // 如果他有super会继续递归，superOptions是新读取到的父组件构造函数的的options
+    const cachedSuperOptions = Ctor.superOptions // 这是子组件生成时记住的父组件构造函数的options
     if (superOptions !== cachedSuperOptions) {
       // super option changed,
       // need to resolve new options.
-      Ctor.superOptions = superOptions
+      Ctor.superOptions = superOptions // 如果不相等了，子组件更新
       // check if there are any late-modified/attached options (#4976)
       const modifiedOptions = resolveModifiedOptions(Ctor)
       // update base extend options
@@ -115,10 +121,10 @@ export function resolveConstructorOptions (Ctor: Class<Component>) { // 构造�
   return options
 }
 
-function resolveModifiedOptions (Ctor: Class<Component>): ?Object {
+function resolveModifiedOptions(Ctor: Class<Component>): ?Object {
   let modified
-  const latest = Ctor.options
-  const sealed = Ctor.sealedOptions
+  const latest = Ctor.options // superOptions
+  const sealed = Ctor.sealedOptions // mergeOptions{superOptions,Sub.options}
   for (const key in latest) {
     if (latest[key] !== sealed[key]) {
       if (!modified) modified = {}

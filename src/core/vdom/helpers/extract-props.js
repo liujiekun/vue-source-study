@@ -9,7 +9,7 @@ import {
   formatComponentName
 } from 'core/util/index'
 
-export function extractPropsFromVNodeData (
+export function extractPropsFromVNodeData(
   data: VNodeData,
   Ctor: Class<Component>,
   tag?: string
@@ -25,7 +25,7 @@ export function extractPropsFromVNodeData (
   const { attrs, props } = data
   if (isDef(attrs) || isDef(props)) {
     for (const key in propOptions) {
-      const altKey = hyphenate(key)
+      const altKey = hyphenate(key) // 把驼峰转成-
       if (process.env.NODE_ENV !== 'production') {
         const keyInLowerCase = key.toLowerCase()
         if (
@@ -43,13 +43,13 @@ export function extractPropsFromVNodeData (
         }
       }
       checkProp(res, props, key, altKey, true) ||
-      checkProp(res, attrs, key, altKey, false)
+        checkProp(res, attrs, key, altKey, false)
     }
   }
   return res
 }
 
-function checkProp (
+function checkProp(
   res: Object,
   hash: ?Object,
   key: string,
