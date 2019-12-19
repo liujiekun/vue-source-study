@@ -823,7 +823,7 @@ function processAttrs (el) {
             if (!isDynamic) {
               addHandler(
                 el,
-                `update:${camelize(name)}`,
+                `update:${camelize(name)}`, // 难怪写了.sync父组件中不需要接收@"update:事件"也可以更改值
                 syncGen,
                 null,
                 false,
