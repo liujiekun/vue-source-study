@@ -15,7 +15,27 @@ import { isUnaryTag, canBeLeftOpenTag } from './util'
 export const baseOptions: CompilerOptions = {
   expectHTML: true,
   modules,
+  // modules:[
+  //   klass:{
+  //   staticKeys: ['staticClass'],
+  //   transformNode,
+  //   genData
+  // },
+  //   style:{
+  //   staticKeys: ['staticStyle'],
+  //   transformNode,
+  //   genData
+  // },
+  //   model:{
+  //   preTransformNode
+  // }
+  // ]
   directives,
+  // directives:{
+  //   model,
+  //   text,
+  //   html
+  // }
   isPreTag,
   isUnaryTag,
   mustUseProp,

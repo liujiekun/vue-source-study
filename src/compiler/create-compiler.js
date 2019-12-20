@@ -6,6 +6,38 @@ import { createCompileToFunctionFn } from './to-function'
 
 export function createCompilerCreator (baseCompile: Function): Function {
   return function createCompiler (baseOptions: CompilerOptions) {
+    // baseOptions:{
+    //   expectHTML: true,
+    //     modules,
+    //     // modules:[
+    //     //   klass:{
+    //     //   staticKeys: ['staticClass'],
+    //     //   transformNode,
+    //     //   genData
+    //     // },
+    //     //   style:{
+    //     //   staticKeys: ['staticStyle'],
+    //     //   transformNode,
+    //     //   genData
+    //     // },
+    //     //   model:{
+    //     //   preTransformNode
+    //     // }
+    //     // ]
+    //     directives,
+    //     // directives:{
+    //     //   model,
+    //     //   text,
+    //     //   html
+    //     // }
+    //     isPreTag,
+    //     isUnaryTag,
+    //     mustUseProp,
+    //     canBeLeftOpenTag,
+    //     isReservedTag,
+    //     getTagNamespace,
+    //     staticKeys: genStaticKeys(modules)
+    // }
     function compile (
       template: string,
       options?: CompilerOptions
