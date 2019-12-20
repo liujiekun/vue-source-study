@@ -160,6 +160,7 @@ export function cached<F: Function> (fn: F): F {
 
 /**
  * Camelize a hyphen-delimited string.
+ * 将连词转成驼峰liu-jie->liuJie,与hyphenate相反
  */
 const camelizeRE = /-(\w)/g
 export const camelize = cached((str: string): string => {
@@ -168,6 +169,7 @@ export const camelize = cached((str: string): string => {
 
 /**
  * Capitalize a string.
+ * 处理成首字母大写，liu->Liu
  */
 export const capitalize = cached((str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1)
@@ -176,6 +178,9 @@ export const capitalize = cached((str: string): string => {
 /**
  * Hyphenate a camelCase string.
  */
+// \B非单词边界就是中间不能留空
+// \b单词边界，一定是liu jie这样的
+// 处理驼峰liuJie->liu-jie
 const hyphenateRE = /\B([A-Z])/g
 export const hyphenate = cached((str: string): string => {
   return str.replace(hyphenateRE, '-$1').toLowerCase()

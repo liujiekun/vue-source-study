@@ -49,6 +49,8 @@ const componentVNodeHooks = {
         activeInstance
       )
       // 此时vnode还是placeholder的占位组件
+      // child经过上一个步骤之后，此刻成为了一个vm实例，也就是vnode.componentOptions.Ctor的实例，也是占位组件的实例，也是实际组件的实例。
+      // vm的构造函数，其实继承自Vue,因为Sub.prototye = Vue.prototype
       child.$mount(hydrating ? vnode.elm : undefined, hydrating)
     }
   },
@@ -155,6 +157,7 @@ export function createComponent(
   // transform component v-model data into props & events
   if (isDef(data.model)) {
     // 组件选项里有model没见过
+    // 单选和复选框，希望把value和input事件让出来，比如value是固定的，希望改变checked这个时候可以，model:{prop:'checked',event:'change'},这样，可以做到change的时候，将改变的值付给checked属性，而不再去更改value。
     transformModel(Ctor.options, data)
   }
 
@@ -216,8 +219,8 @@ export function createComponentInstanceForVnode(
 ): Component {
   const options: InternalComponentOptions = {
     _isComponent: true,
-    _parentVnode: vnode,
-    parent
+    _parentVnode: vnode, // 父占位组件vnode
+    parent // 父组件所在的实例
   }
   // check inline-template render functions
   const inlineTemplate = vnode.data.inlineTemplate

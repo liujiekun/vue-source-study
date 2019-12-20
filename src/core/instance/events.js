@@ -45,6 +45,7 @@ export function updateComponentListeners (
   oldListeners: ?Object
 ) {
   target = vm
+  // 写在父占位组件上的事件，都是给父子组件通信用的，所以add，remove,once都是用的$on,$off,$once实现的
   updateListeners(listeners, oldListeners || {}, add, remove, createOnceHandler, vm)
   target = undefined
 }

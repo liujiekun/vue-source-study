@@ -25,7 +25,7 @@ export function extractPropsFromVNodeData(
   const { attrs, props } = data
   if (isDef(attrs) || isDef(props)) {
     for (const key in propOptions) {
-      const altKey = hyphenate(key) // 把驼峰转成-
+      const altKey = hyphenate(key) // 把驼峰liuJieKun转成->liu-jie-kun
       if (process.env.NODE_ENV !== 'production') {
         const keyInLowerCase = key.toLowerCase()
         if (
@@ -42,6 +42,7 @@ export function extractPropsFromVNodeData(
           )
         }
       }
+      // 如果是props中只加不删，如果是attrs加上就从attrs中删除
       checkProp(res, props, key, altKey, true) ||
         checkProp(res, attrs, key, altKey, false)
     }
