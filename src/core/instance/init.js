@@ -29,7 +29,11 @@ export function initMixin(Vue: Class<Component>) {
     // a flag to avoid this being observed
     vm._isVue = true
     // merge options
-
+    // 组件options: { 
+    //   _isComponent: true,
+    //   _parentVnode: vnode, // 父占位组件vnode
+    //   parent // 父组件所在的实例
+    // }
     if (options && options._isComponent) {// 是组件，走上面，不是组件走下面
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
@@ -78,11 +82,12 @@ export function initInternalComponent(vm: Component, options: InternalComponentO
   //   _parentVnode: vnode,
   //   parent
   // }
-  const opts = vm.$options = Object.create(vm.constructor.options)
+  const opts = vm.$options = Object.create( vm.constructor.options )
+  // vm.constructor->vnode.componentOptions.Ctor
   // 真是神奇，vm.constructor.options居然是通过resolve父组件的coponents,在占位组件上就拿到了子组件的真正options，然后真正初始化子组件时，竟然是通过原型拿到占位组件的options,被骗了这么久。。。
   // doing this because it's faster than dynamic enumeration.
   const parentVnode = options._parentVnode // 占位vnode
-  opts.parent = options.parent // 父组件实例
+  opts.parent = options.parent // 父组件所在的实例，好像是一个组件一个实例
   opts._parentVnode = parentVnode
 
   const vnodeComponentOptions = parentVnode.componentOptions // { Ctor, propsData, listeners, tag, children }

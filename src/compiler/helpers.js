@@ -65,7 +65,8 @@ function prependModifierMarker (symbol: string, name: string, dynamic?: boolean)
     ? `_p(${name},"${symbol}")`
     : symbol + name // mark the event as captured
 }
-
+//(el, name, value, modifiers, false, warn, list[i], isDynamic
+// el, click, value, {},false,warn,@click=handleclick false
 export function addHandler (
   el: ASTElement,
   name: string,

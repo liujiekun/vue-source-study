@@ -41,8 +41,8 @@ export function initLifecycle(vm: Component) {
     parent.$children.push(vm) // 给父组件添加实例到$children
   }
 
-  vm.$parent = parent // 父组件
-  vm.$root = parent ? parent.$root : vm // 当前组件树根节点
+  vm.$parent = parent // 父组件所在的组件
+  vm.$root = parent ? parent.$root : vm // 当前组件树根节点，第一次就是自己
 
   vm.$children = [] // 存储该节点的直接子组件，不是响应式，不保证顺序
   vm.$refs = {}
@@ -187,7 +187,8 @@ export function mountComponent(
     }
   } else {
     updateComponent = () => {
-      vm._update(vm._render(), hydrating)
+      vm._update( vm._render(), hydrating )
+      // _update->function patch->createEle->createComponent->hooks.init->createComponentInstanceForVnode->new vnode.componentOptions.Ctor->_init->$mount->render->patch，完成交接
     }
   }
 
