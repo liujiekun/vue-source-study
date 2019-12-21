@@ -87,7 +87,7 @@ export default class Watcher {
     if (typeof expOrFn === 'function') {
       this.getter = expOrFn
     } else {
-      this.getter = parsePath(expOrFn)
+      this.getter = parsePath(expOrFn) // 给watch这种准备的expOrFn:varibale，vm.varibale
       // const segments = path.split('.') // 将表达式用.分割，然后返回一个函数
       // return function (obj) {
       //   for (let i = 0; i < segments.length; i++) {
@@ -114,12 +114,12 @@ export default class Watcher {
   /**
    * Evaluate the getter, and re-collect dependencies.
    */
-  get() {
+  get () {
     pushTarget(this)
     let value
     const vm = this.vm
     try {
-      value = this.getter.call(vm, vm)
+      value = this.getter.call(vm, vm) // 第二个vm也是给watch这种准备的，就是getter中返回函数的obj,#92行
       // 对于$watch,getter返回的函数执行，相当于在vm里逐级查找数据
     } catch (e) {
       if (this.user) {
@@ -142,7 +142,7 @@ export default class Watcher {
   /**
    * Add a dependency to this directive.
    */
-  addDep(dep: Dep) {
+  addDep (dep: Dep) {
     const id = dep.id
     if (!this.newDepIds.has(id)) {
       this.newDepIds.add(id)
@@ -156,7 +156,7 @@ export default class Watcher {
   /**
    * Clean up for dependency collection.
    */
-  cleanupDeps() {
+  cleanupDeps () {
     let i = this.deps.length
     while (i--) {
       const dep = this.deps[i]
@@ -178,7 +178,7 @@ export default class Watcher {
    * Subscriber interface.
    * Will be called when a dependency changes.
    */
-  update() {
+  update () {
     /* istanbul ignore else */
     if (this.lazy) {
       this.dirty = true
@@ -193,7 +193,7 @@ export default class Watcher {
    * Scheduler job interface.
    * Will be called by the scheduler.
    */
-  run() {
+  run () {
     if (this.active) {
       const value = this.get()
       if (
@@ -224,7 +224,7 @@ export default class Watcher {
    * Evaluate the value of the watcher.
    * This only gets called for lazy watchers.
    */
-  evaluate() {
+  evaluate () {
     this.value = this.get() // 第一次获取computed值时执行
     this.dirty = false // 为什么要拉成false？
   }
@@ -232,7 +232,7 @@ export default class Watcher {
   /**
    * Depend on all deps collected by this watcher.
    */
-  depend() {
+  depend () {
     let i = this.deps.length
     while (i--) {
       this.deps[i].depend()
@@ -242,7 +242,7 @@ export default class Watcher {
   /**
    * Remove self from all dependencies' subscriber list.
    */
-  teardown() {
+  teardown () {
     if (this.active) {
       // remove self from vm's watcher list
       // this is a somewhat expensive operation so we skip it

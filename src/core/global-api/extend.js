@@ -4,7 +4,7 @@ import { ASSET_TYPES } from 'shared/constants'
 import { defineComputed, proxy } from '../instance/state'
 import { extend, mergeOptions, validateComponentName } from '../util/index'
 
-export function initExtend(Vue: GlobalAPI) {
+export function initExtend (Vue: GlobalAPI) {
   /**
    * Each instance constructor, including Vue, has a unique
    * cid. This enables us to create wrapped "child
@@ -16,7 +16,7 @@ export function initExtend(Vue: GlobalAPI) {
   /**
    * Class inheritance
    */
-  Vue.extend = function (extendOptions: Object): Function {
+  Vue.extend = function (extendOptions: Object): Function { // extendOptions子组件options
     extendOptions = extendOptions || {}
     const Super = this // 就是Vue
     const SuperId = Super.cid // 初始值是0，以后++
@@ -28,19 +28,18 @@ export function initExtend(Vue: GlobalAPI) {
     }
 
     const name = extendOptions.name || Super.options.name
-    // 经常不习惯写name，可能也写了components:{child}->components:{child:child}
     if (process.env.NODE_ENV !== 'production' && name) {
       validateComponentName(name)
     }
 
-    const Sub = function VueComponent(options) {
+    const Sub = function VueComponent (options) {
       this._init(options)
     }
     Sub.prototype = Object.create(Super.prototype) // 经典的继承写法
     Sub.prototype.constructor = Sub
     Sub.cid = cid++
     Sub.options = mergeOptions(
-      Super.options,
+      Super.options,// Vue.options一般就{filters:{},components:{transitions,transition-group,keep-alive},directives:{v-model,v-show},_base:Vue}
       extendOptions // 注意此处没有vm，而初始化那块儿有vm
     )
     // 这个合并还真不是当初想象的那样直接合并，而是有策略的合并，
@@ -79,9 +78,9 @@ export function initExtend(Vue: GlobalAPI) {
     // later at instantiation we can check if Super's options have
     // been updated.
     // 保持父子组件间的options引用
-    Sub.superOptions = Super.options
-    Sub.extendOptions = extendOptions
-    Sub.sealedOptions = extend({}, Sub.options)
+    Sub.superOptions = Super.options // 保存父组件构造函数的options
+    Sub.extendOptions = extendOptions // 保存自己的options
+    Sub.sealedOptions = extend({}, Sub.options) // Sub.options保存mergeOptions(Vue.options,extendOptions)
 
     // cache constructor
     cachedCtors[SuperId] = Sub
@@ -89,7 +88,7 @@ export function initExtend(Vue: GlobalAPI) {
   }
 }
 
-function initProps(Comp) {
+function initProps (Comp) {
   const props = Comp.options.props
   for (const key in props) {
     proxy(Comp.prototype, `_props`, key) // 
@@ -97,7 +96,7 @@ function initProps(Comp) {
   }
 }
 
-function initComputed(Comp) {
+function initComputed (Comp) {
   const computed = Comp.options.computed
   for (const key in computed) {
     defineComputed(Comp.prototype, key, computed[key])

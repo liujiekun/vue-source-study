@@ -12,7 +12,7 @@ import { extend, mergeOptions, formatComponentName } from '../util/index'
 
 let uid = 0
 
-export function initMixin(Vue: Class<Component>) {
+export function initMixin (Vue: Class<Component>) {
   Vue.prototype._init = function (options?: Object) {
     const vm: Component = this
     // a uid
@@ -41,9 +41,9 @@ export function initMixin(Vue: Class<Component>) {
       initInternalComponent(vm, options)
     } else {
       vm.$options = mergeOptions( // 合并Options
-        resolveConstructorOptions(vm.constructor),
-        options || {},
-        vm
+        resolveConstructorOptions(vm.constructor), // vm.constructor一般指Vue
+        options || {}, // 用户传入
+        vm // {uid,_isVue}
       )
     }
     /* istanbul ignore else */
@@ -76,7 +76,7 @@ export function initMixin(Vue: Class<Component>) {
   }
 }
 
-export function initInternalComponent(vm: Component, options: InternalComponentOptions) {
+export function initInternalComponent (vm: Component, options: InternalComponentOptions) {
   // options:{
   //   _isComponent: true,
   //   _parentVnode: vnode,
@@ -102,8 +102,8 @@ export function initInternalComponent(vm: Component, options: InternalComponentO
   }
 }
 
-export function resolveConstructorOptions(Ctor: Class<Component>) { // 构造器就是Vue
-  let options = Ctor.options //现在的Vue.options {comonents:{},filters:{},directives:{},_base=Vue}
+export function resolveConstructorOptions (Ctor: Class<Component>) { // 构造器就是Vue
+  let options = Ctor.options //现在的Vue.options {comonents:{keep-alive,transition,transition-group},filters:{},directives:{v-model,v-show},_base=Vue}
   if (Ctor.super) { // 什么样的会有super?
     const superOptions = resolveConstructorOptions(Ctor.super) // 如果他有super会继续递归，superOptions是新读取到的父组件构造函数的的options
     const cachedSuperOptions = Ctor.superOptions // 这是子组件生成时记住的父组件构造函数的options
@@ -126,7 +126,7 @@ export function resolveConstructorOptions(Ctor: Class<Component>) { // 构造器
   return options
 }
 
-function resolveModifiedOptions(Ctor: Class<Component>): ?Object {
+function resolveModifiedOptions (Ctor: Class<Component>): ?Object {
   let modified
   const latest = Ctor.options // superOptions
   const sealed = Ctor.sealedOptions // mergeOptions{superOptions,Sub.options}
