@@ -232,7 +232,8 @@ export function createPatchFunction(backend) {
     if (isDef(i)) {
       const isReactivated = isDef(vnode.componentInstance) && i.keepAlive
       if (isDef(i = i.hook) && isDef(i = i.init)) {
-        i(vnode, false /* hydrating */) // 初始化子组件的一系列事情，直到子组件$mount
+        i( vnode, false /* hydrating */ )
+        // 完成父子组件的交接，创建占位父组件vnode的实例化，createComponentInstanceForVnode-> 初始化子组件的一系列事情，直到子组件$mount
       }
       // after calling the init hook, if the vnode is a child component
       // it should've created a child instance and mounted it. the child
@@ -327,9 +328,10 @@ export function createPatchFunction(backend) {
       cbs.create[i](emptyNode, vnode)
     }
     i = vnode.data.hook // Reuse variable
-    if (isDef(i)) {
+    if (isDef(i)) { // 是组件的话，在构造组件构造函数的时候，会给data.hook添加{init,insert,prepatch,destroy}
       if (isDef(i.create)) i.create(emptyNode, vnode)
-      if (isDef(i.insert)) insertedVnodeQueue.push(vnode)
+      if ( isDef( i.insert ) ) insertedVnodeQueue.push( vnode )
+      // 貌似只要是组件的patch都会进入insertedVnodeQueue
     }
   }
 
@@ -569,38 +571,41 @@ export function createPatchFunction(backend) {
     const oldCh = oldVnode.children
     const ch = vnode.children
     if (isDef(data) && isPatchable(vnode)) {
-      for (i = 0; i < cbs.update.length; ++i) cbs.update[i](oldVnode, vnode)
-      if (isDef(i = data.hook) && isDef(i = i.update)) i(oldVnode, vnode)
+      for (i = 0; i < cbs.update.length; ++i) cbs.update[i](oldVnode, vnode) // 各种update
+      if ( isDef( i = data.hook ) && isDef( i = i.update ) ) i( oldVnode, vnode )
+      // 如果有update的hook单独调用
     }
-    if (isUndef(vnode.text)) {
-      if (isDef(oldCh) && isDef(ch)) {
+    if (isUndef(vnode.text)) { // 节点不是text
+      if ( isDef( oldCh ) && isDef( ch ) ) { // 新老节点都存在
+        // 重点updateChildren
         if (oldCh !== ch) updateChildren(elm, oldCh, ch, insertedVnodeQueue, removeOnly)
-      } else if (isDef(ch)) {
+      } else if (isDef(ch)) { // 只存在新的，直接addVnodes
         if (process.env.NODE_ENV !== 'production') {
           checkDuplicateKeys(ch)
         }
         if (isDef(oldVnode.text)) nodeOps.setTextContent(elm, '')
         addVnodes(elm, null, ch, 0, ch.length - 1, insertedVnodeQueue)
-      } else if (isDef(oldCh)) {
+      } else if (isDef(oldCh)) { // 只存在老的，removeVnodes
         removeVnodes(oldCh, 0, oldCh.length - 1)
-      } else if (isDef(oldVnode.text)) {
+      } else if (isDef(oldVnode.text)) { // 老节点是text，内容设置为空
         nodeOps.setTextContent(elm, '')
       }
     } else if (oldVnode.text !== vnode.text) {
       nodeOps.setTextContent(elm, vnode.text)
     }
-    if (isDef(data)) {
+    if (isDef(data)) { // 调用postpatch
       if (isDef(i = data.hook) && isDef(i = i.postpatch)) i(oldVnode, vnode)
     }
   }
-
+  // 组件的话，initial:false
   function invokeInsertHook(vnode, queue, initial) {
     // delay insert hooks for component root nodes, invoke them after the
     // element is really inserted
     if (isTrue(initial) && isDef(vnode.parent)) {
       vnode.parent.data.pendingInsert = queue
     } else {
-      for (let i = 0; i < queue.length; ++i) {
+      for ( let i = 0; i < queue.length; ++i ) {
+        // 队列中挨个调insert钩子函数
         queue[i].data.hook.insert(queue[i])
       }
     }
@@ -717,7 +722,7 @@ export function createPatchFunction(backend) {
       return node.nodeType === (vnode.isComment ? 8 : 3)
     }
   }
-
+  // 参数：undefined,vnode,false,false
   return function patch(oldVnode, vnode, hydrating, removeOnly) {
     if (isUndef(vnode)) {
       // 没有新节点，有旧节点，调销毁钩子就完了

@@ -56,12 +56,14 @@ export function initLifecycle(vm: Component) {
 }
 
 export function lifecycleMixin(Vue: Class<Component>) {
-  Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
+  // _update真正的执行是在render watcher的getter执行时才会调用
+  // 函数的第一个参数vnode正是调用_render,也就是createElement->_createElement产生的vnode
+  Vue.prototype._update = function ( vnode: VNode, hydrating?: boolean ) {
     const vm: Component = this
     const prevEl = vm.$el
     const prevVnode = vm._vnode
     const restoreActiveInstance = setActiveInstance(vm)
-    vm._vnode = vnode
+    vm._vnode = vnode // 是自己吗？
     // Vue.prototype.__patch__ is injected in entry points
     // based on the rendering backend used.
     if (!prevVnode) {
@@ -138,7 +140,8 @@ export function lifecycleMixin(Vue: Class<Component>) {
   }
 }
 
-export function mountComponent(
+// 子组件渲染时，传入的参数是this,undefined,false
+export function mountComponent( 
   vm: Component,
   el: ?Element,
   hydrating?: boolean
