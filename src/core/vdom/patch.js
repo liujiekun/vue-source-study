@@ -35,12 +35,12 @@ const hooks = ['create', 'activate', 'update', 'remove', 'destroy']
 
 function sameVnode(a, b) {
   return (
-    a.key === b.key && (
+    a.key === b.key && ( // key不相等，绝对不是同一个vnode
       (
-        a.tag === b.tag &&
-        a.isComment === b.isComment &&
-        isDef(a.data) === isDef(b.data) &&
-        sameInputType(a, b)
+        a.tag === b.tag && // tag不相等也不是同一个vonode
+        a.isComment === b.isComment && // 如果是注释节点，就要都是
+        isDef(a.data) === isDef(b.data) && // 都有data
+        sameInputType(a, b) // 并且input的type要相等
       ) || (
         isTrue(a.isAsyncPlaceholder) &&
         a.asyncFactory === b.asyncFactory &&
@@ -445,11 +445,11 @@ export function createPatchFunction(backend) {
     }
 
     while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
-      if (isUndef(oldStartVnode)) {
+      if (isUndef(oldStartVnode)) { // 掐头
         oldStartVnode = oldCh[++oldStartIdx] // Vnode has been moved left
-      } else if (isUndef(oldEndVnode)) {
+      } else if (isUndef(oldEndVnode)) { // 去尾
         oldEndVnode = oldCh[--oldEndIdx]
-      } else if (sameVnode(oldStartVnode, newStartVnode)) {
+      } else if (sameVnode(oldStartVnode, newStartVnode)) { // 头部对比来patch
         patchVnode(oldStartVnode, newStartVnode, insertedVnodeQueue, newCh, newStartIdx)
         oldStartVnode = oldCh[++oldStartIdx]
         newStartVnode = newCh[++newStartIdx]
