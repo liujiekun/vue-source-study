@@ -317,7 +317,9 @@ export function createPatchFunction (backend) {
       nodeOps.appendChild(vnode.elm, nodeOps.createTextNode(String(vnode.text)))
     }
   }
-
+  // 查找子代中第一个有标签的
+  // 比如父组件 <template><child></child></template>,那么父组件就不是可patch的
+  // 如果child中又是这种，继续，直到找到有标签的
   function isPatchable (vnode) {
     while (vnode.componentInstance) {
       vnode = vnode.componentInstance._vnode
