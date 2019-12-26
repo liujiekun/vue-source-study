@@ -167,11 +167,12 @@ export function queueWatcher (watcher: Watcher) {
   const id = watcher.id
   if (has[id] == null) { // 防止同一个周期内相同的watcher进入队列
     has[id] = true
-    if (!flushing) {
+    if (!flushing) { // 如果还没开始flushing,直接放进队列，flushSchedulerQueue的时候会拿id排序
       queue.push(watcher)
     } else {
       // if already flushing, splice the watcher based on its id
       // if already past its id, it will be run next immediately.
+      // 如果已经开始了flush，会根据watcher id将该watcher放入对应位置，如果当前触发id<watcher.id，那么该watcher直接在当前tick内就触发了，如果新的watcher.id在当前id之前，是不是就过去了？
       let i = queue.length - 1
       while (i > index && queue[i].id > watcher.id) {
         i--
@@ -187,6 +188,8 @@ export function queueWatcher (watcher: Watcher) {
         return
       }
       nextTick(flushSchedulerQueue)
+      // nextTick中也是大的队列，都放在callbacks里面
+      // 但是所有的watcher的更新都放在flushSchedulerQueue中了，一个flushSchedulerQueue中循环排序queue，去更新对应的update(render)
     }
   }
 }
