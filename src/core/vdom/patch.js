@@ -142,6 +142,7 @@ export function createPatchFunction (backend) {
   let creatingElmInVPre = 0
 
   // 新建的话，前两个有值，后面都是空
+  // newStartVnode, insertedVnodeQueue, parentElm, oldStartVnode.elm, false, newCh, newStartIdx
   function createElm (
     vnode,
     insertedVnodeQueue,
@@ -375,11 +376,13 @@ export function createPatchFunction (backend) {
     let i, j
     const data = vnode.data
     if (isDef(data)) {
+      // 调node本身的所有destroy钩子
       if (isDef(i = data.hook) && isDef(i = i.destroy)) i(vnode)
       for (i = 0; i < cbs.destroy.length; ++i) cbs.destroy[i](vnode)
     }
     if (isDef(i = vnode.children)) {
       for (j = 0; j < vnode.children.length; ++j) {
+        // 有children，循环递归
         invokeDestroyHook(vnode.children[j])
       }
     }
@@ -457,28 +460,31 @@ export function createPatchFunction (backend) {
         patchVnode(oldStartVnode, newStartVnode, insertedVnodeQueue, newCh, newStartIdx)
         oldStartVnode = oldCh[++oldStartIdx]
         newStartVnode = newCh[++newStartIdx]
-      } else if (sameVnode(oldEndVnode, newEndVnode)) {
+      } else if (sameVnode(oldEndVnode, newEndVnode)) { // 尾部相等
         patchVnode(oldEndVnode, newEndVnode, insertedVnodeQueue, newCh, newEndIdx)
         oldEndVnode = oldCh[--oldEndIdx]
         newEndVnode = newCh[--newEndIdx]
       } else if (sameVnode(oldStartVnode, newEndVnode)) { // Vnode moved right
         patchVnode(oldStartVnode, newEndVnode, insertedVnodeQueue, newCh, newEndIdx)
-        canMove && nodeOps.insertBefore(parentElm, oldStartVnode.elm, nodeOps.nextSibling(oldEndVnode.elm))
+        canMove && nodeOps.insertBefore(parentElm, oldStartVnode.elm, nodeOps.nextSibling(oldEndVnode.elm)) // 调到最后
         oldStartVnode = oldCh[++oldStartIdx]
         newEndVnode = newCh[--newEndIdx]
       } else if (sameVnode(oldEndVnode, newStartVnode)) { // Vnode moved left
         patchVnode(oldEndVnode, newStartVnode, insertedVnodeQueue, newCh, newStartIdx)
+        // 调至最左边
         canMove && nodeOps.insertBefore(parentElm, oldEndVnode.elm, oldStartVnode.elm)
         oldEndVnode = oldCh[--oldEndIdx]
         newStartVnode = newCh[++newStartIdx]
       } else {
+        // 把旧节点的children们的key收集起来
         if (isUndef(oldKeyToIdx)) oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx)
+        // 新的节点如果有key，idxInOld就取旧节点对应的key的节点位置，否则就在旧节点里查找与新节点是samenode的节点index
         idxInOld = isDef(newStartVnode.key)
           ? oldKeyToIdx[newStartVnode.key]
           : findIdxInOld(newStartVnode, oldCh, oldStartIdx, oldEndIdx)
-        if (isUndef(idxInOld)) { // New element
+        if (isUndef(idxInOld)) { // New element,如果没找到，
           createElm(newStartVnode, insertedVnodeQueue, parentElm, oldStartVnode.elm, false, newCh, newStartIdx)
-        } else {
+        } else { // 如果找到了
           vnodeToMove = oldCh[idxInOld]
           if (sameVnode(vnodeToMove, newStartVnode)) {
             patchVnode(vnodeToMove, newStartVnode, insertedVnodeQueue, newCh, newStartIdx)
@@ -490,12 +496,15 @@ export function createPatchFunction (backend) {
           }
         }
         newStartVnode = newCh[++newStartIdx]
+        // 为什么只有新的++，因为剩下的就看新的了，如果旧的匹配不上就全部删掉，如果能匹配上就复用
       }
     }
     if (oldStartIdx > oldEndIdx) {
+      // 什么情况下会出现oldStartIdx>oldEndIdx,为什么这种情况下要增加？
       refElm = isUndef(newCh[newEndIdx + 1]) ? null : newCh[newEndIdx + 1].elm
       addVnodes(parentElm, refElm, newCh, newStartIdx, newEndIdx, insertedVnodeQueue)
     } else if (newStartIdx > newEndIdx) {
+      // newStartIdx>newEndIdx，为什么这种情况下要减少？
       removeVnodes(oldCh, oldStartIdx, oldEndIdx)
     }
   }
@@ -569,6 +578,7 @@ export function createPatchFunction (backend) {
     let i
     const data = vnode.data
     if (isDef(data) && isDef(i = data.hook) && isDef(i = i.prepatch)) {
+      // 触发prepatch勾子
       i(oldVnode, vnode)
     }
 
@@ -594,7 +604,7 @@ export function createPatchFunction (backend) {
       } else if (isDef(oldVnode.text)) { // 老节点是text，内容设置为空
         nodeOps.setTextContent(elm, '')
       }
-    } else if (oldVnode.text !== vnode.text) {
+    } else if (oldVnode.text !== vnode.text) { // 节点是text
       nodeOps.setTextContent(elm, vnode.text)
     }
     if (isDef(data)) { // 调用postpatch
