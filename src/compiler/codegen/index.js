@@ -273,7 +273,7 @@ export function genData(el: ASTElement, state: CodegenState): string {
     data += `slot:${el.slotTarget},`
   }
   // scoped slots
-  // 代表孩子有slot="name | default",主要是有scope | slot-scope,
+  // 代表孩子有slot="name | default",主要是有scope | slot-scope,因为只有slot-scope或者scope，才会给父元素添加scopedSlots[slotTarget] = element
   if (el.scopedSlots) {
     data += `${genScopedSlots(el, el.scopedSlots, state)},`
   }
