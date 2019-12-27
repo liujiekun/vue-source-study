@@ -160,6 +160,7 @@ export function parse (
     // final children cleanup
     // filter out scoped slots
     // 为什么要清理掉呢，等待后续解答,看147行的官方解释原因
+    // 有slotScope的都被清理掉了，加到父占位组件上去了
     // keep it in the children list so that v-else(-if) conditions can
     // find it as the prev node.
     element.children = element.children.filter(c => !(c: any).slotScope)

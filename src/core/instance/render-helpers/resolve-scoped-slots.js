@@ -7,7 +7,7 @@ export function resolveScopedSlots (
   hasDynamicKeys?: boolean,
   contentHashKey?: number
 ): { [key: string]: Function, $stable: boolean } {
-  res = res || { $stable: !hasDynamicKeys }
+  res = res || { $stable: !hasDynamicKeys } //$stable有什么用？
   for (let i = 0; i < fns.length; i++) {
     const slot = fns[i]
     if (Array.isArray(slot)) {
