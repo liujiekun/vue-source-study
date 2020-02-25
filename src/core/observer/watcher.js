@@ -226,7 +226,9 @@ export default class Watcher {
    */
   evaluate () {
     this.value = this.get() // 第一次获取computed值时执行
-    this.dirty = false // 为什么要拉成false？
+    // 为什么要拉成false？
+    // 2020/02/25日答：因为第一次需要收集依赖，以后就不需要了，所谓的缓存机制，建立起依赖之后，以后就可以通过依赖项的变化，触发computed Watcher去更新就好了
+    this.dirty = false
   }
 
   /**
