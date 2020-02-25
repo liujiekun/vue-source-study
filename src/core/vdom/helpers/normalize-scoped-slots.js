@@ -4,6 +4,9 @@ import { def } from 'core/util/lang'
 import { normalizeChildren } from 'core/vdom/helpers/normalize-children'
 import { emptyObject } from 'shared/util'
 
+//_parentVnode.data.scopedSlots, // 它放在爸爸身上的scope || slot-scope的东西
+// vm.$slots, // 它自己的slot的东西,slotName
+// vm.$scopedSlots // 孩子放在它身上的
 export function normalizeScopedSlots (
   slots: { [key: string]: Function } | void,
   normalSlots: { [key: string]: Array<VNode> },

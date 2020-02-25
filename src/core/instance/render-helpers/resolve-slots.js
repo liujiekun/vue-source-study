@@ -24,15 +24,18 @@ export function resolveSlots (
     // same context.
     if ((child.context === context || child.fnContext === context) &&
       data && data.slot != null
-    ) {
+    ) { // 有slot的推入对应的slot
       const name = data.slot
       const slot = (slots[name] || (slots[name] = []))
       if (child.tag === 'template') {
+        // 如果tag是template，就把child.children全部推入
         slot.push.apply(slot, child.children || [])
       } else {
+        // 否则只推入一个
         slot.push(child)
       }
     } else {
+      // 没有slot的推入default
       (slots.default || (slots.default = [])).push(child)
     }
   }

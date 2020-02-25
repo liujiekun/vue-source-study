@@ -14,6 +14,7 @@ function flushCallbacks () {
   pending = false
   const copies = callbacks.slice(0)
   callbacks.length = 0
+  // 开始处理事务了，可以把上一个周期弄进来的东西复制出去，然后清空接收下一个周期的事务
   for (let i = 0; i < copies.length; i++) {
     copies[i]()
   }

@@ -160,6 +160,7 @@ export function parse (
     // final children cleanup
     // filter out scoped slots
     // 为什么要清理掉呢，等待后续解答,看147行的官方解释原因
+    // 有slotScope的都被清理掉了，加到父占位组件上去了
     // keep it in the children list so that v-else(-if) conditions can
     // find it as the prev node.
     element.children = element.children.filter(c => !(c: any).slotScope)
@@ -518,11 +519,11 @@ export function processFor (el: ASTElement) {
 }
 
 type ForParseResult = {
-  for: string;
-  alias: string;
-  iterator1?: string;
-  iterator2?: string;
-};
+  for: string
+  alias: string
+  iterator1?: string
+  iterator2?: string
+}
 
 export function parseFor (exp: string): ?ForParseResult {
   const inMatch = exp.match(forAliasRE)
@@ -830,7 +831,9 @@ function processAttrs (el) {
                 warn,
                 list[i]
               )
-              if (hyphenate(name) !== camelize(name)) {
+              // hyphenate->将liu-jie-kun换成liuJieKun
+              // camelize->将liuJieKun换成liu-jie-kun
+              if (hyphenate(name) !== camelize(name)) { // 不等的话，两个都加
                 addHandler(
                   el,
                   `update:${hyphenate(name)}`,

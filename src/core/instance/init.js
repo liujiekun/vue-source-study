@@ -82,7 +82,7 @@ export function initInternalComponent (vm: Component, options: InternalComponent
   //   _parentVnode: vnode,
   //   parent
   // }
-  const opts = vm.$options = Object.create( vm.constructor.options )
+  const opts = vm.$options = Object.create(vm.constructor.options)
   // vm.constructor->vnode.componentOptions.Ctor
   // 真是神奇，vm.constructor.options居然是通过resolve父组件的coponents,在占位组件上就拿到了子组件的真正options，然后真正初始化子组件时，竟然是通过原型拿到占位组件的options,被骗了这么久。。。
   // doing this because it's faster than dynamic enumeration.
@@ -93,6 +93,7 @@ export function initInternalComponent (vm: Component, options: InternalComponent
   const vnodeComponentOptions = parentVnode.componentOptions // { Ctor, propsData, listeners, tag, children }
   opts.propsData = vnodeComponentOptions.propsData
   opts._parentListeners = vnodeComponentOptions.listeners
+  // _renderChildren将来给子组件渲染slot的时候会用到，vm.$slots=(options._renderChildren, renderContext)
   opts._renderChildren = vnodeComponentOptions.children
   opts._componentTag = vnodeComponentOptions.tag
 

@@ -24,7 +24,7 @@ export function renderSlot (
       }
       props = extend(extend({}, bindObject), props)
     }
-    nodes = scopedSlotFn(props) || fallback
+    nodes = scopedSlotFn(props) || fallback // 还是通过闭包才实现了slot-scope或者scope只能被里面的组件使用
   } else { // slot = "XXX"
     nodes = this.$slots[name] || fallback // <p slot="xxx"></p>
   }

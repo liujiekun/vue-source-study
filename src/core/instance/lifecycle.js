@@ -21,7 +21,7 @@ import {
 export let activeInstance: any = null
 export let isUpdatingChildComponent: boolean = false
 
-export function setActiveInstance(vm: Component) {
+export function setActiveInstance (vm: Component) {
   const prevActiveInstance = activeInstance
   activeInstance = vm
   return () => {
@@ -29,7 +29,7 @@ export function setActiveInstance(vm: Component) {
   }
 }
 
-export function initLifecycle(vm: Component) {
+export function initLifecycle (vm: Component) {
   const options = vm.$options
 
   // locate first non-abstract parent
@@ -55,22 +55,22 @@ export function initLifecycle(vm: Component) {
   vm._isBeingDestroyed = false
 }
 
-export function lifecycleMixin(Vue: Class<Component>) {
+export function lifecycleMixin (Vue: Class<Component>) {
   // _update真正的执行是在render watcher的getter执行时才会调用
   // 函数的第一个参数vnode正是调用_render,也就是createElement->_createElement产生的vnode
-  Vue.prototype._update = function ( vnode: VNode, hydrating?: boolean ) {
+  Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
     const vm: Component = this
     const prevEl = vm.$el
-    const prevVnode = vm._vnode
+    const prevVnode = vm._vnode // 更新前的vnode
     const restoreActiveInstance = setActiveInstance(vm)
-    vm._vnode = vnode // 是自己吗？
+    vm._vnode = vnode // 替换新的
     // Vue.prototype.__patch__ is injected in entry points
     // based on the rendering backend used.
     if (!prevVnode) {
       // initial render
       vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */)
     } else {
-      // updates
+      // updates，新旧作比较
       vm.$el = vm.__patch__(prevVnode, vnode)
     }
     restoreActiveInstance()
@@ -141,7 +141,7 @@ export function lifecycleMixin(Vue: Class<Component>) {
 }
 
 // 子组件渲染时，传入的参数是this,undefined,false
-export function mountComponent( 
+export function mountComponent (
   vm: Component,
   el: ?Element,
   hydrating?: boolean
@@ -190,7 +190,7 @@ export function mountComponent(
     }
   } else {
     updateComponent = () => {
-      vm._update( vm._render(), hydrating )
+      vm._update(vm._render(), hydrating)
       // _update->function patch->createEle->createComponent->hooks.init->createComponentInstanceForVnode->new vnode.componentOptions.Ctor->_init->$mount->render->patch，完成交接
     }
   }
@@ -199,7 +199,7 @@ export function mountComponent(
   // since the watcher's initial patch may call $forceUpdate (e.g. inside child
   // component's mounted hook), which relies on vm._watcher being already defined
   new Watcher(vm, updateComponent, noop, {
-    before() {
+    before () {
       if (vm._isMounted && !vm._isDestroyed) {
         callHook(vm, 'beforeUpdate')
       }
@@ -223,7 +223,7 @@ export function mountComponent(
   vnode, // new parent vnode
   options.children // new children
 */
-export function updateChildComponent(
+export function updateChildComponent (
   vm: Component,
   propsData: ?Object,
   listeners: ?Object,
@@ -303,14 +303,14 @@ export function updateChildComponent(
   }
 }
 
-function isInInactiveTree(vm) {
+function isInInactiveTree (vm) {
   while (vm && (vm = vm.$parent)) {
     if (vm._inactive) return true
   }
   return false
 }
 
-export function activateChildComponent(vm: Component, direct?: boolean) {
+export function activateChildComponent (vm: Component, direct?: boolean) {
   if (direct) {
     vm._directInactive = false
     if (isInInactiveTree(vm)) {
@@ -328,7 +328,7 @@ export function activateChildComponent(vm: Component, direct?: boolean) {
   }
 }
 
-export function deactivateChildComponent(vm: Component, direct?: boolean) {
+export function deactivateChildComponent (vm: Component, direct?: boolean) {
   if (direct) {
     vm._directInactive = true
     if (isInInactiveTree(vm)) {
@@ -344,7 +344,7 @@ export function deactivateChildComponent(vm: Component, direct?: boolean) {
   }
 }
 
-export function callHook(vm: Component, hook: string) {
+export function callHook (vm: Component, hook: string) {
   // #7573 disable dep collection when invoking lifecycle hooks
   // 停止依赖收集
   pushTarget()

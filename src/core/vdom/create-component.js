@@ -45,6 +45,7 @@ const componentVNodeHooks = {
       const mountedNode: any = vnode // work around flow
       componentVNodeHooks.prepatch(mountedNode, mountedNode)
     } else {
+      // 生成vnode的componentInstance，然后挂载
       const child = vnode.componentInstance = createComponentInstanceForVnode(
         vnode,
         activeInstance
@@ -72,7 +73,7 @@ const componentVNodeHooks = {
     const { context, componentInstance } = vnode
     if (!componentInstance._isMounted) {
       componentInstance._isMounted = true
-      callHook(componentInstance, 'mounted')
+      callHook(componentInstance, 'mounted') // 触发mounted钩子
     }
     if (vnode.data.keepAlive) {
       if (context._isMounted) {
@@ -92,7 +93,7 @@ const componentVNodeHooks = {
     const { componentInstance } = vnode
     if (!componentInstance._isDestroyed) {
       if (!vnode.data.keepAlive) {
-        componentInstance.$destroy()
+        componentInstance.$destroy() // destroy钩子
       } else {
         deactivateChildComponent(componentInstance, true /* direct */)
       }
