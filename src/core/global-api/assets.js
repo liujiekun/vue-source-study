@@ -13,7 +13,7 @@ export function initAssetRegisters(Vue: GlobalAPI) {
       definition: Function | Object
     ): Function | Object | void {
       if (!definition) {
-        return this.options[type + 's'][id]
+        return this.options[type + 's'][id] // 如果只写id或者name，会直接返回定义过的component,filter,directive
       } else {
         /* istanbul ignore if */
         if (process.env.NODE_ENV !== 'production' && type === 'component') {
