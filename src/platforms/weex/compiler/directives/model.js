@@ -24,6 +24,7 @@ function genDefaultModel (
 
   let valueExpression = `$event.target.attr.value${trim ? '.trim()' : ''}`
   if (number) {
+    // _n->toNumber
     valueExpression = `_n(${valueExpression})`
   }
 

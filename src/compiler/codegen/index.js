@@ -24,7 +24,9 @@ export class CodegenState {
   constructor(options: CompilerOptions) {
     this.options = options
     this.warn = options.warn || baseWarn
+    // transformCode:class中一个，style中一个
     this.transforms = pluckModuleFunction(options.modules, 'transformCode')
+    // gendata:class中一个，style中一个
     this.dataGenFns = pluckModuleFunction(options.modules, 'genData')
     this.directives = extend(extend({}, baseDirectives), options.directives)
     const isReservedTag = options.isReservedTag || no
@@ -71,7 +73,9 @@ export function genElement (el: ASTElement, state: CodegenState): string {
   } else if (el.tag === 'template' && !el.slotTarget && !state.pre) { // 针对父组件
     return genChildren(el, state) || 'void 0'
   } else if (el.tag === 'slot') { // el.slotName，针对子组件
-    return genSlot(el, state)
+    return genSlot(el, state) // 子组件渲染
+    // 结果是_t(slotName,children,attrs)
+    // attrs:{name:value,name:value,...}
   } else {
     // component or element
     let code
@@ -89,6 +93,19 @@ export function genElement (el: ASTElement, state: CodegenState): string {
         }${
         children ? `,${children}` : '' // children
         })`
+      // 结束之后变成_c(tag,{data},children:[children])
+      // data:{
+      // directives:[{name:xxx,value:xxx}],
+      // key:xx,
+      // ref:xx,
+      // attrs:{name:value,...},
+      // domProps:{name:value,name:value,...},
+      // on:{name:function($event){按键处理;return handler.value($event);},...}
+      // 或on:{name:[function($event){按键处理;return handler.value($event);},...],name:[function($event){}]}
+      // nativeOn:{event:[],event:[],...},
+      // scopedSlots: _u([{ key: slotName, fn: function (scopedSlot) { return tag === 'tempalte' ? genChildren : genElement(element) } }, ...])
+      // // 经过_u的转化成{slotName:function(scopedSlot){genElement(element)}}
+      // }
     }
     // module transforms
     for (let i = 0; i < state.transforms.length; i++) {
@@ -166,12 +183,12 @@ function genIfConditions (
   }
 
   const condition = conditions.shift()
-  if (condition.exp) { // 有exp代表是if和elseif
+  if (condition.exp) { // 有exp代表是if和elseif，没有代表else
     return `(${condition.exp})?${
       genTernaryExp(condition.block)
       }:${
       genIfConditions(conditions, state, altGen, altEmpty)
-      // 如果elseif的话，还有exp还走这里，然后再走到这块就走else了，就到177了，形成了A?B?C:D的场面
+      // 如果elseif的话，还有exp还走这里，然后再走到这块就走else了，就到177了，形成了A?A:B?B:C?C:D的场面
       }`
   } else { // 代表else
     return `${genTernaryExp(condition.block)}`
@@ -225,6 +242,8 @@ export function genData (el: ASTElement, state: CodegenState): string {
 
   // directives first.
   // directives may mutate the el's other properties before they are generated.
+  // 经过genDirectives之后变成directives:[{name:xx,value:xx,expression:xx,modifiers:xxx}]
+  // 这里面有一个特殊的model
   const dirs = genDirectives(el, state)
   if (dirs) data += dirs + ','
 
@@ -248,6 +267,7 @@ export function genData (el: ASTElement, state: CodegenState): string {
     data += `tag:"${el.tag}",`
   }
   // module data generation functions
+  // 处理class和style
   for (let i = 0; i < state.dataGenFns.length; i++) {
     data += state.dataGenFns[i](el)
   }
@@ -262,9 +282,13 @@ export function genData (el: ASTElement, state: CodegenState): string {
   // event handlers
   if (el.events) {
     data += `${genHandlers(el.events, false)},`
+    // on:{name:function($event){按键处理;return handler.value($event);},...}
+    // on:{name:[function($event){按键处理;return handler.value($event);},...],name:[function($event){}]}
   }
   if (el.nativeEvents) {
     data += `${genHandlers(el.nativeEvents, true)},`
+    // nativeOn:{name:function($event){按键处理;return handler.value($event);},...}
+    // nativeOn:{name:[function($event){按键处理;return handler.value($event);},...],name:[function($event){}]}
   }
   // slot target
   // only for non-scoped slots
@@ -274,10 +298,22 @@ export function genData (el: ASTElement, state: CodegenState): string {
   }
   // scoped slots
   // 代表孩子有slot="name | default",主要是有scope | slot-scope,因为只有slot-scope或者scope，才会给父元素添加scopedSlots[slotTarget] = element
+  // scopedSlots:_u([{key:slotName,fn:function(scopedSlot){return tag==='tempalte' ? genChildren:genElement(element)}},...])
+  // _u->resolveScopedSlots:返回一个对象{slotName:fn,...}
   if (el.scopedSlots) {
     data += `${genScopedSlots(el, el.scopedSlots, state)},`
   }
   // component v-model
+  // 组件性质的才给el加model了，然后等于
+  // el.model = {
+  //   value: `(${value})`,
+  //   expression: JSON.stringify(value),
+  //   callback: `function (${baseValueExpression}) {${assignment}}`
+  // }
+  //   直接变量的callback：callback:`function($$v){value=expression}`
+  //   对象或者数组某一项的 callback:`function($$v){$set(exp,key,assignment)}`
+  // 如果直接是input或者radio或者checkbox的，直接就给el添加value了，然后给el添加input处理事件
+
   if (el.model) {
     data += `model:{value:${
       el.model.value
@@ -577,6 +613,8 @@ function genSlot (el: ASTElement, state: CodegenState): string {
     res += `${attrs ? '' : ',null'},${bind}`
   }
   return res + ')'
+  // 结果是_t(slotName,children,attrs)
+  // attrs:{name:value,name:value,...}
 }
 
 // componentName is el.component, take it as argument to shun flow's pessimistic refinement

@@ -104,9 +104,14 @@ function genHandler (handler: ASTElementHandler | Array<ASTElementHandler>): str
   if (Array.isArray(handler)) {
     return `[${handler.map(handler => genHandler(handler)).join(',')}]`
   }
-
+  // simplePathRE = /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\['[^']*?']|\["[^"]*?"]|\[\d+]|\[[A-Za-z_$][\w$]*])*$/
+  // 该正则A.B,A['B'],A["B"],A[2],A[B]
   const isMethodPath = simplePathRE.test(handler.value)
+  // const fnExpRE = /^([\w$_]+|\([^)]*?\))\s*=>|^function(?:\s+[\w$]+)?\s*\(/
+  // _=> 或 () => {},function xxx()
   const isFunctionExpression = fnExpRE.test(handler.value)
+  // fnInvokeRE = /\([^)]*?\);*$/
+  // ()
   const isFunctionInvocation = simplePathRE.test(handler.value.replace(fnInvokeRE, ''))
   // 针对@click="handleClick($event)",先把（$event）移除掉
 
@@ -133,7 +138,7 @@ function genHandler (handler: ASTElementHandler | Array<ASTElementHandler>): str
         if (keyCodes[key]) {
           keys.push(key)
         }
-      } else if (key === 'exact') { // 如果加了exact，除了modifiers里面的其他的['ctrl', 'shift', 'alt', 'meta']都不能按，按了就返回null
+      } else if (key === 'exact') { // 如果加了exact，除了modifiers里面的其他的['ctrl', 'shift', 'alt', 'meta']都不能按，按了就返回null,意思是只有这四个键可以加exact了？
         const modifiers: ASTModifiers = (handler.modifiers: any)
           genModifierCode += genGuard(
             ['ctrl', 'shift', 'alt', 'meta']
@@ -164,6 +169,7 @@ function genHandler (handler: ASTElementHandler | Array<ASTElementHandler>): str
       return genWeexHandler(handler.params, code + handlerCode)
     }
     return `function($event){${code}${handlerCode}}`
+    // 总体是这样的，function($event){处理code的逻辑;然后handler.value($event)}
   }
 }
 

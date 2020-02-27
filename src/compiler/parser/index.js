@@ -118,7 +118,7 @@ export function parse (
       element = processElement(element, options)
     }
     // tree management
-    if (!stack.length && element !== root) {
+    if (!stack.length && element !== root) {// 当前节点与根节点是兄弟关系
       // allow root elements with v-if, v-else-if and v-else
       // 如果根节点是if,else的情况
       if (root.if && (element.elseif || element.else)) {
@@ -141,18 +141,20 @@ export function parse (
     if (currentParent && !element.forbidden) {
       if (element.elseif || element.else) {
         processIfConditions(element, currentParent)
+        // else-if、else的元素直接就挂在if元素上了，没有往父元素的children里push
       } else {
         if (element.slotScope) { // 有slotScope的，都是<template scope="">或者slot-scope的
           // scoped slot
           // keep it in the children list so that v-else(-if) conditions can
           // find it as the prev node.
           const name = element.slotTarget || '"default"' // 有slot的就放到对应的slot里面，如果没有放default
+            // scopedSlots是针对父元素说的，slotScope和slotTarget才是针对子元素说的，
             ; (currentParent.scopedSlots || (currentParent.scopedSlots = {}))[name] = element
           // <parent>           // curentParent.scopedSlots[header]= element 
           //  <p slot="header" scope="" | slot-scope=""> // element.slotTarget=header
           // </parent>
         }
-        currentParent.children.push(element)
+        currentParent.children.push(element) // slotScope的元素也被推进了children中
         element.parent = currentParent
       }
     }
@@ -302,7 +304,7 @@ export function parse (
         }
       }
 
-      if (!unary) {
+      if (!unary) { // 如果不是自闭合标签，就赋值当前父元素，并将元素入栈
         currentParent = element
         stack.push(element)
       } else {
@@ -455,12 +457,19 @@ export function processElement (
   )
 
   processRef(element)
+  // 处理scope或者slot-scope,生成el.slotScope
+  // 如果元素中右slot='XXX',还会生成el.slotTarget,并在el.attrs中push该变量的一个对象
   processSlotContent(element)
+  // 处理<slot name="XXX"></slot>, 处理完el.slotName='XXX'
   processSlotOutlet(element)
   processComponent(element)
   for (let i = 0; i < transforms.length; i++) {
+    // 处理静态class和静态style,生成el.staticClass和el.staticStyle
     element = transforms[i](element, options) || element
   }
+  // 截止目前该加到el上的属性都加上了，
+  // 现在的element：{key:xxx,if:xx,else-if:xx,ifConditions:[],ref:xxx,slotScope:xxx,slotTarget:xxx,slotName=xxx,staticClass:xxx,staticStyle:xxx,attrs:[]}
+  // 接下来该处理attrs了
   processAttrs(element)
   return element
 }
@@ -505,8 +514,9 @@ export function processFor (el: ASTElement) {
   if ((exp = getAndRemoveAttr(el, 'v-for'))) {
     const res = parseFor(exp)
     // res解析完
-    // 如果一项，返回{alias: "item in List"}
-    // 如果两项，返回{alias:"item in List",iterator1:"item",iterator2:"index"}
+    // 如果一项，返回{for:List,alias: "item"}
+    // 如果两项，返回{for:List,alias:"item",iterator1:"index"}
+    // 其实还有三项的情况，用法是针对对象，(value,key,index) in obj,返回{for:obj,alias:'value',iterator1:'key',iterator2:'index'}
     if (res) {
       extend(el, res) //通过extend将res属性挂载到el上
     } else if (process.env.NODE_ENV !== 'production') {
@@ -528,11 +538,12 @@ type ForParseResult = {
 export function parseFor (exp: string): ?ForParseResult {
   const inMatch = exp.match(forAliasRE)
   if (!inMatch) return
-  // (item,index) in List
+  // (item,index) in List,
+  //如果匹配到了就是这样的 ["(item,index) in List", "(item,index)", "List"]
   const res = {}
-  res.for = inMatch[2].trim() // 匹配到的循环对此昂List
+  res.for = inMatch[2].trim() // 匹配到的循环对象List
   const alias = inMatch[1].trim().replace(stripParensRE, '') // 把表达式左右括号去掉,变成item,index
-  const iteratorMatch = alias.match(forIteratorRE) // 剩下了item,index
+  const iteratorMatch = alias.match(forIteratorRE) // 剩下了item,index 用来匹配都好后面的\,index
   if (iteratorMatch) {
     res.alias = alias.replace(forIteratorRE, '').trim() // 只剩下了item
     res.iterator1 = iteratorMatch[1].trim() // index
@@ -544,6 +555,7 @@ export function parseFor (exp: string): ?ForParseResult {
   }
   // 如果一项，返回{for:List,alias: "item"}
   // 如果两项，返回{for:List,alias:"item",iterator1:"index"}
+  // 其实还有三项的情况，用法是针对对象，(value,key,index) in obj,返回{for:obj,alias:'value',iterator1:'key',iterator2:'index'}
   return res
 }
 
@@ -551,6 +563,7 @@ function processIf (el) {
   const exp = getAndRemoveAttr(el, 'v-if')
   if (exp) {
     el.if = exp
+    // el.ifConditions = [],然后push({exp:exp,block:el})
     addIfCondition(el, {
       exp: exp,
       block: el
@@ -569,8 +582,8 @@ function processIf (el) {
 function processIfConditions (el, parent) {
   const prev = findPrevElement(parent.children)
   if (prev && prev.if) {
-    addIfCondition(prev, {
-      exp: el.elseif, // 如果只是else，这个就位空，如果是elseif就有值
+    addIfCondition(prev, { // 把else-if、else元素跟if元素通过父元素的ifconditions:[]绑定起来了
+      exp: el.elseif, // 如果只是else，这个就是undefined，如果是elseif就有值
       block: el
     })
   } else if (process.env.NODE_ENV !== 'production') {
@@ -595,7 +608,7 @@ function findPrevElement (children: Array<any>): ASTElement | void {
           children[i]
         )
       }
-      children.pop()
+      children.pop() // 换行前的空格，或者注释文档这里就直接从parent元素的children中pop掉了
     }
   }
 }
@@ -616,7 +629,7 @@ function processOnce (el) {
 
 // handle content being passed to a component as slot,
 // e.g. <template scope="xxx">, <div slot-scope="xxx">
-// scope或者slot-scope都是el.slotScope,slot="name"对象slotTarget
+// scope或者slot-scope都是el.slotScope
 function processSlotContent (el) {
   let slotScope
   if (el.tag === 'template') {
@@ -656,6 +669,7 @@ function processSlotContent (el) {
     // only for non-scoped slots.
     if (el.tag !== 'template' && !el.slotScope) {
       addAttr(el, 'slot', slotTarget, getRawBindingAttr(el, 'slot'))
+      // 别的都直接加到el上了，为什么这个要加到el.attrs中？
     }
   }
 
@@ -777,6 +791,8 @@ function processComponent (el) {
 }
 
 function processAttrs (el) {
+  // attrsList:[{name:'',value:''}]
+  // 这个时候attrsList已经去掉了一些东西，比如v-for，v-if，key等一些前期处理的东西
   const list = el.attrsList
   let i, l, name, rawName, value, modifiers, syncGen, isDynamic
   for (i = 0, l = list.length; i < l; i++) {
@@ -796,6 +812,7 @@ function processAttrs (el) {
         name = name.replace(modifierRE, '')
       }
       // bindRE --- /^:|^\.|^v-bind:/
+      // 针对属性
       if (bindRE.test(name)) { // v-bind
         name = name.replace(bindRE, '')
         value = parseFilters(value)
@@ -865,8 +882,11 @@ function processAttrs (el) {
           addProp(el, name, value, list[i], isDynamic)
         } else {
           addAttr(el, name, value, list[i], isDynamic)
+          // 至此所有的属性都变成el.attrs里面的项了
+          // 全部变成el.attrs:[key:{},key:{},...]
         }
       } else if (onRE.test(name)) { // v-on, onRE = /^@|^v-on:/
+        // 针对事件
         // @click变成click
         name = name.replace(onRE, '')
         isDynamic = dynamicArgRE.test(name) //   /^\[.*\]$/
@@ -875,6 +895,8 @@ function processAttrs (el) {
           // 20191116，我日，真的有@[event] = 'handleClick'这种变态的写法
         }
         addHandler(el, name, value, modifiers, false, warn, list[i], isDynamic)
+        // 添加完会变成el.events:{click:[{value:'',dynamic:xx,modifiers:xx},],keypress:[{value:xxx,dynamic:xxx,modifiers:xxx}],...}
+        // el.nativeEvents:{key:[{}],key:[{}],...}
       } else { // normal directives
         name = name.replace(dirRE, '')
         // parse arg
@@ -888,6 +910,7 @@ function processAttrs (el) {
             isDynamic = true
           }
         }
+        // 下面这句执行完，会变成el.directives:[{},{},...]
         addDirective(el, name, rawName, value, arg, isDynamic, modifiers, list[i])
         if (process.env.NODE_ENV !== 'production' && name === 'model') {
           checkForAliasModel(el, value)

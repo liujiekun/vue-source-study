@@ -13,7 +13,7 @@ export function renderList (
     index?: number
   ) => VNode
   // (item,index) in List,val->List,render(val:item,keyOrIndex:item,index:index)
-  // render传入的本身就是一个函数genElement,
+  // render传入的本身就是一个函数function(item,key,index){return genElement(el,state)},
   // 这个玩意儿还是function(val,key){return _c(el.tag,data:data,children)}
 ): ?Array<VNode> {
   let ret: ?Array<VNode>, i, l, keys, key
@@ -21,11 +21,13 @@ export function renderList (
     ret = new Array(val.length)
     for (i = 0, l = val.length; i < l; i++) {
       ret[i] = render(val[i], i) // val[i],就是item,i就是index
+      // 实际执行的是function(val[i],i){return genElement(el,state)}
     }
   } else if (typeof val === 'number') { // 直接数字v-for="9",相当于数组
     ret = new Array(val)
     for (i = 0; i < val; i++) {
       ret[i] = render(i + 1, i)
+      // 实际执行的是function(i+1,i){return genElement(el,state)}
     }
   } else if (isObject(val)) { // 对象
     if (hasSymbol && val[Symbol.iterator]) {

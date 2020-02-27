@@ -19,6 +19,7 @@ export function genComponentModel (
       `: ${baseValueExpression})`
   }
   if (number) {
+    // _n->toNumber
     valueExpression = `_n(${valueExpression})`
   }
   const assignment = genAssignmentCode(value, valueExpression)
@@ -27,6 +28,8 @@ export function genComponentModel (
     value: `(${value})`,
     expression: JSON.stringify(value),
     callback: `function (${baseValueExpression}) {${assignment}}`
+    // 字面量：callback:`function($$v){value=expression}`
+    // callback:`function($$v){$set(exp,key,)}`
   }
 }
 
@@ -107,7 +110,8 @@ export function parseModel (val: string): ModelParseResult {
       parseBracket(chr)
     }
   }
-
+  // A["B"]--->{exp:A[B].slice(0,1),key:A[B].slice(3,4)}->{exp:A,key:B}
+  // A["B"]["C"]-->{exp:A["B"],key:C}
   return {
     exp: val.slice(0, expressionPos),
     key: val.slice(expressionPos + 1, expressionEndPos)
