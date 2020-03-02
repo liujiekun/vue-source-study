@@ -22,6 +22,7 @@ function _traverse (val: any, seen: SimpleSet) {
   if ((!isA && !isObject(val)) || Object.isFrozen(val) || val instanceof VNode) {
     return
   }
+  // 应该是循环取一遍值就行了，这样取的值的dep都会将该watcher放进去，这些值变化时都会通知该watcher进行更新
   if (val.__ob__) {
     const depId = val.__ob__.dep.id
     if (seen.has(depId)) {

@@ -75,8 +75,10 @@ export function renderMixin (Vue: Class<Component>) {
     if (_parentVnode) {
       vm.$scopedSlots = normalizeScopedSlots(
         _parentVnode.data.scopedSlots, // 它放在爸爸身上的scope || slot-scope的东西
-        vm.$slots, // 它自己的slot的东西
-        vm.$scopedSlots // 孩子放在它身上的
+        vm.$slots,
+        // vm.$slot = resolveSlots(options._renderChildren, renderContext)
+        // 也是它爸爸里面不带scope或slot-scope的slot的集合
+        vm.$scopedSlots
       )
     }
 
@@ -98,6 +100,8 @@ export function renderMixin (Vue: Class<Component>) {
       /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production' && vm.$options.renderError) {
         try {
+          // 线上环境vm._renderProxy=vm
+          // 开发环境vm._renderProxy = new Proxy(vm,handlers)
           vnode = vm.$options.renderError.call(vm._renderProxy, vm.$createElement, e)
         } catch (e) {
           handleError(e, vm, `renderError`)
@@ -125,6 +129,7 @@ export function renderMixin (Vue: Class<Component>) {
       vnode = createEmptyVNode()
     }
     // set parent
+    // 设置vnode之间的父子关系
     vnode.parent = _parentVnode // 根节点的_parentVonode为undefined
     return vnode
   }

@@ -19,7 +19,7 @@ export function initExtend (Vue: GlobalAPI) {
   Vue.extend = function (extendOptions: Object): Function { // extendOptions子组件options
     extendOptions = extendOptions || {}
     const Super = this // 就是Vue
-    const SuperId = Super.cid // 初始值是0，以后++
+    const SuperId = Super.cid // 初始值是0被Vue占了，以后的组件从1开始++
     const cachedCtors = extendOptions._Ctor || (extendOptions._Ctor = {})
     // 给组件添加_Ctor,初始化为{}
     if (cachedCtors[SuperId]) {
@@ -43,8 +43,11 @@ export function initExtend (Vue: GlobalAPI) {
       extendOptions // 注意此处没有vm，而初始化那块儿有vm
     )
     // 这个合并还真不是当初想象的那样直接合并，而是有策略的合并，
+    // 生命周期钩子函数都是[].concat
+    // watch是[].concat
     // 如directives,filters,components都是以父对象为原型创建对象
-    // data是儿子的覆盖老子的
+    // props,method,inject儿子覆盖老子的
+    // data,provide是深层次递归，儿子的覆盖老子的
     // 像初始化Vue一样初始化组件
     Sub['super'] = Super // 建立组件间父子关系
 
@@ -93,6 +96,7 @@ function initProps (Comp) {
   for (const key in props) {
     proxy(Comp.prototype, `_props`, key) // 
     // 添加到原型上是几个意思？
+    // 20200302答：估计是为了组件复用吧，让每个组件都能拿到
   }
 }
 
@@ -101,5 +105,6 @@ function initComputed (Comp) {
   for (const key in computed) {
     defineComputed(Comp.prototype, key, computed[key])
     // 添加到原型上是几个意思？
+    // 20200302答：估计是为了组件复用吧，让每个组件都能拿到
   }
 }

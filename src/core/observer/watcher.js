@@ -65,7 +65,7 @@ export default class Watcher {
     // options
     if (options) {
       this.deep = !!options.deep
-      this.user = !!options.user // $watch的标识吗？
+      this.user = !!options.user // $watch的标识吗？把吗去掉
       this.lazy = !!options.lazy // computedWatcher的标识
       this.sync = !!options.sync
       this.before = options.before // 触发beforeUpdate钩子
@@ -106,7 +106,7 @@ export default class Watcher {
         )
       }
     }
-    this.value = this.lazy
+    this.value = this.lazy // computedWatcher的lazy就是true，调用时使用了watcher.evaluate
       ? undefined // computedwatcher第一次建立，并未获取值
       : this.get() // 如果没有lazy，执行get来获取值
   }
@@ -180,7 +180,7 @@ export default class Watcher {
    */
   update () {
     /* istanbul ignore else */
-    if (this.lazy) {
+    if (this.lazy) { // computedWatcher标识
       this.dirty = true
     } else if (this.sync) {
       this.run()
@@ -207,7 +207,7 @@ export default class Watcher {
         // set new value
         const oldValue = this.value
         this.value = value
-        if (this.user) {
+        if (this.user) { // $watch的通道
           try {
             this.cb.call(this.vm, value, oldValue)
           } catch (e) {
@@ -228,6 +228,7 @@ export default class Watcher {
     this.value = this.get() // 第一次获取computed值时执行
     // 为什么要拉成false？
     // 2020/02/25日答：因为第一次需要收集依赖，以后就不需要了，所谓的缓存机制，建立起依赖之后，以后就可以通过依赖项的变化，触发computed Watcher去更新就好了
+    // 20200229日，发现如果有依赖项发生变化，通知computedWatcher进行更新了，它会把dirty变成true,然后下一次取它的值的时候，重新建立依赖。
     this.dirty = false
   }
 

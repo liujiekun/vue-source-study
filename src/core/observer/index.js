@@ -152,7 +152,7 @@ export function defineReactive(
   const getter = property && property.get
   const setter = property && property.set
   if ((!getter || setter) && arguments.length === 2) { // 只有obj和key的话
-    val = obj[key]
+    val = obj[key] // 给参数赋值
   }
 
   let childOb = !shallow && observe(val) // 对象的属性也是对象，递归

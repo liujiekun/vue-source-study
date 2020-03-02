@@ -34,14 +34,16 @@ export function normalizeScopedSlots (
     return prevSlots
   } else {
     res = {}
-    for (const key in slots) {
-      if (slots[key] && key[0] !== '$') {
+    for (const key in slots) { // slot中有scope的节点
+      if (slots[key] && key[0] !== '$') {//过滤掉$打头的属性
         res[key] = normalizeScopedSlot(normalSlots, key, slots[key])
+        // 经过normalizeScopedSlot函数处理normalSlots,返回一函数，normalSlots[key] = slots[key]=scopedSlots对象里的fn,
+        // res[key] = function normalized(){fn.apply(null,arguments)}
       }
     }
   }
   // expose normal slots on scopedSlots
-  for (const key in normalSlots) {
+  for (const key in normalSlots) {// slot中没有scope的节点
     if (!(key in res)) {
       res[key] = proxyNormalSlot(normalSlots, key)
     }

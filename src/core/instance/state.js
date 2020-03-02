@@ -48,8 +48,8 @@ export function proxy(target: Object, sourceKey: string, key: string) {
 export function initState(vm: Component) {
   vm._watchers = []
   const opts = vm.$options
-  if (opts.props) initProps(vm, opts.props) // 初始化属性
-  if (opts.methods) initMethods(vm, opts.methods) // 初始化方法
+  if (opts.props) initProps(vm, opts.props) // 取值再判断值是否符合类型，然后加进vm._props
+  if (opts.methods) initMethods(vm, opts.methods) // 初始化方法，添加进vm
   if (opts.data) {
     initData(vm) // 初始化数据
   } else {
@@ -66,7 +66,7 @@ function initProps(vm: Component, propsOptions: Object) {
   const props = vm._props = {}
   // cache prop keys so that future props updates can iterate using Array
   // instead of dynamic object key enumeration.
-  const keys = vm.$options._propKeys = []
+  const keys = vm.$options._propKeys = [] // 存放porps的key
   const isRoot = !vm.$parent
   // root instance props should be converted
   if (!isRoot) {
@@ -85,7 +85,7 @@ function initProps(vm: Component, propsOptions: Object) {
           vm
         )
       }
-      defineReactive(props, key, value, () => { // 该函数的目的是修改值的时候调用，如果不是root节点，不让直接修改。
+      defineReactive(props, key, value, () => { // 该函数的目的是修改值的时候调用，如果不是root节点且不是正在更新自节点时，不让直接修改。
         if (!isRoot && !isUpdatingChildComponent) {
           warn(
             `Avoid mutating a prop directly since the value will be ` +
@@ -174,6 +174,13 @@ function initComputed(vm: Component, computed: Object) {
   const isSSR = isServerRendering()
 
   for (const key in computed) {
+    // computed:{
+    //   key(){}// 直接当做get来用
+    //   key:{ // 手写get和set
+    //     get(){},
+    //     set(){}
+    //   }
+    // }
     const userDef = computed[key]
     const getter = typeof userDef === 'function' ? userDef : userDef.get
     if (process.env.NODE_ENV !== 'production' && getter == null) {
@@ -189,7 +196,7 @@ function initComputed(vm: Component, computed: Object) {
         vm,
         getter || noop,
         noop,
-        computedWatcherOptions
+        computedWatcherOptions  // {layz:true},computedWatcher的标识
       )
     }
 
@@ -244,11 +251,12 @@ function createComputedGetter(key) {
   return function computedGetter() {
     const watcher = this._computedWatchers && this._computedWatchers[key]
     if (watcher) {
-      if (watcher.dirty) {
-        watcher.evaluate()
+      if (watcher.dirty) { // 创建watcher的时候，dirty = lazy = true
+        watcher.evaluate() 
+        // 调用之后，获取值，并建立相关依赖，并将dirty = false，以后就通过依赖的变化进行更新了
       }
       if (Dep.target) {
-        watcher.depend() // 收集依赖
+        watcher.depend() // 如果别的什么变量用到了它，将它收入依赖，以便它变化时，通知依赖它的比爱你量及时更新
       }
       return watcher.value
     }
@@ -292,7 +300,7 @@ function initMethods(vm: Component, methods: Object) {
 function initWatch(vm: Component, watch: Object) {
   for (const key in watch) {
     const handler = watch[key]
-    if (Array.isArray(handler)) {
+    if (Array.isArray(handler)) { // watch可以放数组
       for (let i = 0; i < handler.length; i++) {
         createWatcher(vm, key, handler[i])
       }
@@ -323,7 +331,7 @@ function createWatcher(
   //   key:'method'|| {handler:'method'}
   // }
   if (typeof handler === 'string') { // 第一次见这么用
-    handler = vm[handler]
+    handler = vm[handler] // 找vm里面对应的方法名
   }
   return vm.$watch(expOrFn, handler, options)
 }
@@ -373,7 +381,7 @@ export function stateMixin(Vue: Class<Component>) {
         handleError(error, vm, `callback for immediate watcher "${watcher.expression}"`)
       }
     }
-    return function unwatchFn() {
+    return function unwatchFn() {// 直接针对watcher解除监听的方法返回去了，接收之后直接执行，就解除了，真好！！！
       watcher.teardown()
     }
   }

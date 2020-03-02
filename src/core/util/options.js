@@ -46,7 +46,7 @@ if (process.env.NODE_ENV !== 'production') {
 /**
  * Helper that recursively merges two data objects together.
  */
-function mergeData(to: Object, from: ?Object): Object {
+function mergeData (to: Object, from: ?Object): Object {
   if (!from) return to
   let key, toVal, fromVal
 
@@ -76,7 +76,7 @@ function mergeData(to: Object, from: ?Object): Object {
 /**
  * Data
  */
-export function mergeDataOrFn(
+export function mergeDataOrFn (
   parentVal: any,
   childVal: any,
   vm?: Component
@@ -94,14 +94,14 @@ export function mergeDataOrFn(
     // merged result of both functions... no need to
     // check if parentVal is a function here because
     // it has to be a function to pass previous merges.
-    return function mergedDataFn() {
+    return function mergedDataFn () {
       return mergeData(
         typeof childVal === 'function' ? childVal.call(this, this) : childVal,
         typeof parentVal === 'function' ? parentVal.call(this, this) : parentVal
       )
     }
   } else {
-    return function mergedInstanceDataFn() {
+    return function mergedInstanceDataFn () {
       // instance merge
       const instanceData = typeof childVal === 'function'
         ? childVal.call(vm, vm)
@@ -143,13 +143,13 @@ strats.data = function (
 /**
  * Hooks and props are merged as arrays.
  */
-function mergeHook(
+function mergeHook (
   parentVal: ?Array<Function>,
   childVal: ?Function | ?Array<Function>
 ): ?Array<Function> {
   const res = childVal
     ? parentVal
-      ? parentVal.concat(childVal)
+      ? parentVal.concat(childVal) // 钩子函数之所以设计成数组形式，跟这里也有关系
       : Array.isArray(childVal)
         ? childVal
         : [childVal]
@@ -160,7 +160,7 @@ function mergeHook(
   // 保证钩子函数出来都是数组，当然如果你愿意钩子也可以直接写成数组
 }
 
-function dedupeHooks(hooks) {
+function dedupeHooks (hooks) {
   const res = []
   for (let i = 0; i < hooks.length; i++) {
     if (res.indexOf(hooks[i]) === -1) {
@@ -181,7 +181,7 @@ LIFECYCLE_HOOKS.forEach(hook => {
  * a three-way merge between constructor options, instance
  * options and parent options.
  */
-function mergeAssets(
+function mergeAssets (
   parentVal: ?Object,
   childVal: ?Object,
   vm?: Component,
@@ -271,13 +271,13 @@ const defaultStrat = function (parentVal: any, childVal: any): any {
 /**
  * Validate component names
  */
-function checkComponents(options: Object) {
+function checkComponents (options: Object) {
   for (const key in options.components) {
     validateComponentName(key)
   }
 }
 
-export function validateComponentName(name: string) {
+export function validateComponentName (name: string) {
   if (!new RegExp(`^[a-zA-Z][\\-\\.0-9_${unicodeRegExp.source}]*$`).test(name)) {
     warn(
       'Invalid component name: "' + name + '". Component names ' +
@@ -296,7 +296,14 @@ export function validateComponentName(name: string) {
  * Ensure all props option syntax are normalized into the
  * Object-based format.
  */
-function normalizeProps(options: Object, vm: ?Component) {
+function normalizeProps (options: Object, vm: ?Component) {
+  // props:['xxx','xxx']
+  // props:{
+  //  key:{
+  //    type:[],
+  //    default:xxx,
+  //  }
+  // }
   const props = options.props
   if (!props) return
   const res = {}
@@ -307,7 +314,7 @@ function normalizeProps(options: Object, vm: ?Component) {
       val = props[i]
       if (typeof val === 'string') {
         name = camelize(val)
-        res[name] = { type: null }
+        res[name] = { type: null } // 数组的写法，不限制类型
       } else if (process.env.NODE_ENV !== 'production') {
         warn('props must be strings when using array syntax.')
       }
@@ -318,7 +325,7 @@ function normalizeProps(options: Object, vm: ?Component) {
       name = camelize(key)
       res[name] = isPlainObject(val)
         ? val
-        : { type: val }
+        : { type: val } // 这算限制了个啥类型嘛
     }
   } else if (process.env.NODE_ENV !== 'production') {
     warn(
@@ -333,7 +340,7 @@ function normalizeProps(options: Object, vm: ?Component) {
 /**
  * Normalize all injections into Object-based format
  */
-function normalizeInject(options: Object, vm: ?Component) {
+function normalizeInject (options: Object, vm: ?Component) {
   const inject = options.inject
   if (!inject) return
   const normalized = options.inject = {}
@@ -360,7 +367,7 @@ function normalizeInject(options: Object, vm: ?Component) {
 /**
  * Normalize raw function directives into object format.
  */
-function normalizeDirectives(options: Object) {
+function normalizeDirectives (options: Object) {
   const dirs = options.directives
   if (dirs) {
     for (const key in dirs) {
@@ -372,7 +379,7 @@ function normalizeDirectives(options: Object) {
   }
 }
 
-function assertObjectType(name: string, value: any, vm: ?Component) {
+function assertObjectType (name: string, value: any, vm: ?Component) {
   if (!isPlainObject(value)) {
     warn(
       `Invalid value for option "${name}": expected an Object, ` +
@@ -386,7 +393,7 @@ function assertObjectType(name: string, value: any, vm: ?Component) {
  * Merge two option objects into a new one.
  * Core utility used in both instantiation and inheritance.
  */
-export function mergeOptions(
+export function mergeOptions (
   parent: Object, // Vue.options
   child: Object,
   vm?: Component
@@ -398,9 +405,10 @@ export function mergeOptions(
   if (typeof child === 'function') {
     child = child.options
   }
-
+  // 将props统一成name:{type:null}或者name:{自定义的对象}
+  // 不过name都变成了小写了
   normalizeProps(child, vm)
-  normalizeInject(child, vm)
+  normalizeInject(child, vm) // 这里可以将inject:[]或者{}统一转换成{from:xxx}的形式
   normalizeDirectives(child)
 
   // Apply extends and mixins on the child options,
@@ -441,7 +449,7 @@ export function mergeOptions(
  * This function is used because child instances need access
  * to assets defined in its ancestor chain.
  */
-export function resolveAsset(
+export function resolveAsset (
   options: Object,
   type: string,
   id: string,
@@ -457,10 +465,10 @@ export function resolveAsset(
   //一毛一样的组件，肯定匹配
   if (hasOwn(assets, id)) return assets[id]
   const camelizedId = camelize(id)
-  // 注册是驼峰，模板是小写加-的情况
+  // 注册是驼峰，使用的时候是小写加-的情况
   if (hasOwn(assets, camelizedId)) return assets[camelizedId]
   const PascalCaseId = capitalize(camelizedId)
-  // 注册是首字母大写，模板是首字母小写的情况
+  // 注册是首字母大写，使用时是首字母小写的情况
   if (hasOwn(assets, PascalCaseId)) return assets[PascalCaseId]
   // fallback to prototype chain
   const res = assets[id] || assets[camelizedId] || assets[PascalCaseId]

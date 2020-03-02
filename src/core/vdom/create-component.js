@@ -52,7 +52,7 @@ const componentVNodeHooks = {
       )
       // 此时vnode还是placeholder的占位组件
       // child经过上一个步骤之后，此刻成为了一个vm实例，也就是vnode.componentOptions.Ctor的实例，也是占位组件的实例，也是实际组件的实例。
-      // vm的构造函数，其实继承自Vue,因为Sub.prototye = Vue.prototype
+      // vm的构造函数，其实继承自Vue,因为Sub.prototye = Object.create(Vue.prototype)
       child.$mount(hydrating ? vnode.elm : undefined, hydrating)
     }
   },
@@ -102,7 +102,8 @@ const componentVNodeHooks = {
 }
 
 const hooksToMerge = Object.keys(componentVNodeHooks)
-
+// createComponent(Ctor, data, context, children, tag)
+// 参数详情：Ctor找到的组件，data是父占位组件的data
 export function createComponent(
   Ctor: Class<Component> | Function | Object | void,
   data: ?VNodeData,
@@ -200,7 +201,7 @@ export function createComponent(
   const vnode = new VNode(
     `vue-component-${Ctor.cid}${name ? `-${name}` : ''}`,
     data, undefined, undefined, undefined, context,
-    { Ctor, propsData, listeners, tag, children },
+    { Ctor, propsData, listeners, tag, children }, // 这个就是所谓的componentOption
     asyncFactory
   )
 

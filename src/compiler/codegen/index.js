@@ -103,6 +103,7 @@ export function genElement (el: ASTElement, state: CodegenState): string {
       // on:{name:function($event){按键处理;return handler.value($event);},...}
       // 或on:{name:[function($event){按键处理;return handler.value($event);},...],name:[function($event){}]}
       // nativeOn:{event:[],event:[],...},
+      // slot:'',
       // scopedSlots: _u([{ key: slotName, fn: function (scopedSlot) { return tag === 'tempalte' ? genChildren : genElement(element) } }, ...])
       // // 经过_u的转化成{slotName:function(scopedSlot){genElement(element)}}
       // }

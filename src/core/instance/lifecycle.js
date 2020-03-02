@@ -60,8 +60,8 @@ export function lifecycleMixin (Vue: Class<Component>) {
   // 函数的第一个参数vnode正是调用_render,也就是createElement->_createElement产生的vnode
   Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
     const vm: Component = this
-    const prevEl = vm.$el
-    const prevVnode = vm._vnode // 更新前的vnode
+    const prevEl = vm.$el // 第一次是undefined
+    const prevVnode = vm._vnode // 更新前的vnode,第一次也是undefined
     const restoreActiveInstance = setActiveInstance(vm)
     vm._vnode = vnode // 替换新的
     // Vue.prototype.__patch__ is injected in entry points
@@ -140,6 +140,7 @@ export function lifecycleMixin (Vue: Class<Component>) {
   }
 }
 
+// 开始渲染时，传入的是this,this.$options.el,undefined
 // 子组件渲染时，传入的参数是this,undefined,false
 export function mountComponent (
   vm: Component,
@@ -199,7 +200,7 @@ export function mountComponent (
   // since the watcher's initial patch may call $forceUpdate (e.g. inside child
   // component's mounted hook), which relies on vm._watcher being already defined
   new Watcher(vm, updateComponent, noop, {
-    before () {
+    before () { // 渲染watcher独有的触发beforeUpdate钩子
       if (vm._isMounted && !vm._isDestroyed) {
         callHook(vm, 'beforeUpdate')
       }

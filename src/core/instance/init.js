@@ -83,17 +83,17 @@ export function initInternalComponent (vm: Component, options: InternalComponent
   //   parent
   // }
   const opts = vm.$options = Object.create(vm.constructor.options)
-  // vm.constructor->vnode.componentOptions.Ctor
-  // 真是神奇，vm.constructor.options居然是通过resolve父组件的coponents,在占位组件上就拿到了子组件的真正options，然后真正初始化子组件时，竟然是通过原型拿到占位组件的options,被骗了这么久。。。
+  // vm.constructor->parentVnode.componentOptions.Ctor
+  // 真是神奇，vm.constructor.options居然是通过resolve父组件的components,在占位组件上就拿到了子组件的真正options，然后真正初始化子组件时，竟然是通过原型继承的方式拿到占位组件的options,被骗了这么久。。。
   // doing this because it's faster than dynamic enumeration.
   const parentVnode = options._parentVnode // 占位vnode
   opts.parent = options.parent // 父组件所在的实例，好像是一个组件一个实例
   opts._parentVnode = parentVnode
 
   const vnodeComponentOptions = parentVnode.componentOptions // { Ctor, propsData, listeners, tag, children }
-  opts.propsData = vnodeComponentOptions.propsData
+  opts.propsData = vnodeComponentOptions.propsData // 父占位组件的属性值，以及attrs
   opts._parentListeners = vnodeComponentOptions.listeners
-  // _renderChildren将来给子组件渲染slot的时候会用到，vm.$slots=(options._renderChildren, renderContext)
+  // _renderChildren将来给子组件渲染slot的时候会用到，initRender时vm.$slots=resolveSlots(options._renderChildren, renderContext)
   opts._renderChildren = vnodeComponentOptions.children
   opts._componentTag = vnodeComponentOptions.tag
 
@@ -105,7 +105,7 @@ export function initInternalComponent (vm: Component, options: InternalComponent
 
 export function resolveConstructorOptions (Ctor: Class<Component>) { // 构造器就是Vue
   let options = Ctor.options //现在的Vue.options {comonents:{keep-alive,transition,transition-group},filters:{},directives:{v-model,v-show},_base=Vue}
-  if (Ctor.super) { // 什么样的会有super?
+  if (Ctor.super) { // 什么样的会有super? 答：父子组件extend之后，子组件就有了
     const superOptions = resolveConstructorOptions(Ctor.super) // 如果他有super会继续递归，superOptions是新读取到的父组件构造函数的的options
     const cachedSuperOptions = Ctor.superOptions // 这是子组件生成时记住的父组件构造函数的options
     if (superOptions !== cachedSuperOptions) {

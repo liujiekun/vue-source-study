@@ -25,18 +25,19 @@ export function validateProp(
   vm?: Component
 ): any {
   const prop = propOptions[key]
-  const absent = !hasOwn(propsData, key)
-  let value = propsData[key]
+  const absent = !hasOwn(propsData, key) // 不在它父占位组件的属性里面
+  let value = propsData[key] // 先取父占位组件里面传过来的值
   // boolean casting
   const booleanIndex = getTypeIndex(Boolean, prop.type)//有匹配到是Boolean类型
-  if (booleanIndex > -1) {
+  if (booleanIndex > -1) { // 大于-1算是匹配到了Boolean,类型中有Boolean
     if (absent && !hasOwn(prop, 'default')) {
       value = false // 且没有设置默认值，就设置为false
     } else if (value === '' || value === hyphenate(key)) { // key如果是两个单词，A B-->a-b
       // only cast empty string / same name to boolean if
       // boolean has higher priority
       const stringIndex = getTypeIndex(String, prop.type)
-      if (stringIndex < 0 || booleanIndex < stringIndex) { // 同样查到的boolean和string，value为空设为true
+      if (stringIndex < 0 || booleanIndex < stringIndex) { 
+        // 没有匹配到String,或者查到的boolean早于string，value设为true
         value = true
       }
     }
@@ -51,12 +52,14 @@ export function validateProp(
     observe(value) // 将prop做成动态响应的
     toggleObserving(prevShouldObserve)
   }
+  // 以上种种都是给value赋值
   if (
     process.env.NODE_ENV !== 'production' &&
     // skip validation for weex recycle-list child component props
     !(__WEEX__ && isObject(value) && ('@binding' in value))
   ) { // 眼看就要返回了，这里又进行了值类型的校验
     assertProp(prop, key, value, vm, absent)
+    // 
   }
   return value
 }
@@ -89,7 +92,8 @@ function getPropDefaultValue(vm: ?Component, prop: PropOptions, key: string): an
   }
   // call factory function for non-Function types
   // a value is Function if its prototype is function even across different execution context
-  return typeof def === 'function' && getType(prop.type) !== 'Function'
+  return typeof def === 'function' && getType(prop.type) !== 'Function' 
+  // 只要不是构造函数就行
     ? def.call(vm)
     : def
 }
@@ -115,7 +119,7 @@ function assertProp(
     return
   }
   let type = prop.type
-  let valid = !type || type === true // type不写或者写true，默认算通过
+  let valid = !type || type === true 
   const expectedTypes = []
   if (type) {
     if (!Array.isArray(type)) {
@@ -216,7 +220,7 @@ function getInvalidTypeMessage(name, value, expectedTypes) {
   }
   message += `, got ${receivedType} `
   // check if we need to specify received value
-  if (isExplicable(receivedType)) {
+  if (isExplicable(receivedType)) { //'string', 'number', 'boolean'
     message += `with value ${receivedValue}.`
   }
   return message

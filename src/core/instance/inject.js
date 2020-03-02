@@ -57,7 +57,7 @@ export function resolveInject(inject: any, vm: Component): ?Object {
         }
         source = source.$parent
       } // 循环向它的父辈组件查找
-      if (!source) {
+      if (!source) { // 刚开始肯定有，循环一直到头了，都没找到，根节点的$parent肯定undefined
         if ('default' in inject[key]) { // 如果有default，就将default赋值给result[key]
           const provideDefault = inject[key].default
           result[key] = typeof provideDefault === 'function'

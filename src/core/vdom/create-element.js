@@ -25,7 +25,7 @@ const ALWAYS_NORMALIZE = 2
 
 // wrapper function for providing a more flexible interface
 // without getting yelled at by flow
-export function createElement(
+export function createElement (
   context: Component, // 执行上下文
   tag: any,
   data: any,
@@ -39,12 +39,12 @@ export function createElement(
     data = undefined
   }
   if (isTrue(alwaysNormalize)) {
-    normalizationType = ALWAYS_NORMALIZE
+    normalizationType = ALWAYS_NORMALIZE // ALWAYS_NORMALIZE=2
   }
   return _createElement(context, tag, data, children, normalizationType)
 }
 
-export function _createElement(
+export function _createElement (
   context: Component,
   tag?: string | Class<Component> | Function | Object,
   data?: VNodeData,
@@ -89,10 +89,10 @@ export function _createElement(
     // function(slotScope){return el.tag=="template"?genChildren(children):genElement(children)}
     children.length = 0
   }
-  if (normalizationType === ALWAYS_NORMALIZE) {
+  if (normalizationType === ALWAYS_NORMALIZE) { //normalizationType==2
     children = normalizeChildren(children)
     // 深层次递归，合并处理文本类型或者基本类型节点
-  } else if (normalizationType === SIMPLE_NORMALIZE) {
+  } else if (normalizationType === SIMPLE_NORMALIZE) { //normalizationType==1
     children = simpleNormalizeChildren(children) // 如果有多级数组简单拉平
   }
   let vnode, ns
@@ -142,7 +142,7 @@ export function _createElement(
   }
 }
 
-function applyNS(vnode, ns, force) {
+function applyNS (vnode, ns, force) {
   vnode.ns = ns
   if (vnode.tag === 'foreignObject') {
     // use default namespace inside foreignObject
@@ -163,7 +163,7 @@ function applyNS(vnode, ns, force) {
 // ref #5318
 // necessary to ensure parent re-render when deep bindings like :style and
 // :class are used on slot nodes
-function registerDeepBindings(data) {
+function registerDeepBindings (data) {
   if (isObject(data.style)) {
     traverse(data.style)
   }

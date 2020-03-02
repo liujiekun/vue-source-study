@@ -141,8 +141,8 @@ export function createPatchFunction (backend) {
 
   let creatingElmInVPre = 0
 
-  // 新建的话，前两个有值，后面都是空
-  // newStartVnode, insertedVnodeQueue, parentElm, oldStartVnode.elm, false, newCh, newStartIdx
+  // 开始参数:vnode,[],body,undefined
+  // children循环时，参数为children[i],insertedVnodeQueue,vnode.elm,null,true,children,i
   function createElm (
     vnode,
     insertedVnodeQueue,
@@ -169,7 +169,7 @@ export function createPatchFunction (backend) {
 
     const data = vnode.data
     const children = vnode.children
-    const tag = vnode.tag
+    const tag = vnode.tag // div
     if (isDef(tag)) {
       if (process.env.NODE_ENV !== 'production') {
         if (data && data.pre) {
@@ -185,6 +185,7 @@ export function createPatchFunction (backend) {
         }
       }
 
+      // vnode.elm重新赋值
       vnode.elm = vnode.ns
         ? nodeOps.createElementNS(vnode.ns, tag)
         : nodeOps.createElement(tag, vnode)
@@ -214,7 +215,9 @@ export function createPatchFunction (backend) {
         createChildren(vnode, children, insertedVnodeQueue)
         if (isDef(data)) {
           invokeCreateHooks(vnode, insertedVnodeQueue)
+          // 触发各种各样的钩子
         }
+        // 把组件插入到父元素下面
         insert(parentElm, vnode.elm, refElm)
       }
 
@@ -229,7 +232,7 @@ export function createPatchFunction (backend) {
       insert(parentElm, vnode.elm, refElm)
     }
   }
-
+  // vnode,[],body,undefined
   function createComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
     let i = vnode.data
     if (isDef(i)) {
@@ -244,6 +247,7 @@ export function createPatchFunction (backend) {
       // in that case we can just return the element and be done.
       if (isDef(vnode.componentInstance)) {
         initComponent(vnode, insertedVnodeQueue)
+        // 
         insert(parentElm, vnode.elm, refElm)
         if (isTrue(isReactivated)) {
           reactivateComponent(vnode, insertedVnodeQueue, parentElm, refElm)
@@ -254,10 +258,12 @@ export function createPatchFunction (backend) {
   }
 
   function initComponent (vnode, insertedVnodeQueue) {
+    // pendingInsert这个变量貌似作用是，父占位组件由于没有elm，所以把它给了一个变量标识，然后子组件渲染完了，给接到原来的insertedVnodeQuere里面
     if (isDef(vnode.data.pendingInsert)) {
       insertedVnodeQueue.push.apply(insertedVnodeQueue, vnode.data.pendingInsert)
       vnode.data.pendingInsert = null
     }
+    // 如果是组件的话，elm当时是空，现在子组件已经真实渲染过了，赋值给真实组件的$el
     vnode.elm = vnode.componentInstance.$el
     if (isPatchable(vnode)) {
       invokeCreateHooks(vnode, insertedVnodeQueue)
@@ -792,6 +798,8 @@ export function createPatchFunction (backend) {
         const parentElm = nodeOps.parentNode(oldElm)
 
         // create new node
+        // 这一步之后，vnode的children生成了，children的钩子全部触发，
+        // vnode最后，各种钩子也都触发过，elm已经插入到父元素下面了，
         createElm(
           vnode,
           insertedVnodeQueue,
