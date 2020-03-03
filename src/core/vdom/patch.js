@@ -482,7 +482,7 @@ export function createPatchFunction (backend) {
         oldEndVnode = oldCh[--oldEndIdx]
         newStartVnode = newCh[++newStartIdx]
       } else {
-        // 把旧节点的children们的key收集起来
+        // 把旧节点的children们的key收集起来,返回map:{key:index,...}
         if (isUndef(oldKeyToIdx)) oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx)
         // 新的节点如果有key，idxInOld就取旧节点对应的key的节点位置，否则就在旧节点里查找与新节点是samenode的节点index
         idxInOld = isDef(newStartVnode.key)
