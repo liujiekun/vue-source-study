@@ -815,7 +815,7 @@ function processAttrs (el) {
       // 针对属性
       if (bindRE.test(name)) { // v-bind
         name = name.replace(bindRE, '')
-        value = parseFilters(value)
+        value = parseFilters(value) // 属性也可以使用过滤器，xxx | filter
         isDynamic = dynamicArgRE.test(name) // 动态属性，不敢相信:[key]="属性名"
         if (isDynamic) {
           name = name.slice(1, -1) // 去左右中括号
