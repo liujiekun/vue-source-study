@@ -462,7 +462,9 @@ export function resolveAsset (
   // 这里不仅仅是查找组件使用，还可以查找options下面的任何资源，比如常见的directives,components
   const assets = options[type]
   // check local registration variations first
-  //一毛一样的组件，肯定匹配
+  //一毛一样的写法，肯定匹配
+  // 假如像ElButton，使用时像el-button的例子
+  // 直接使肯定找不着，然后驼峰，将el-button->elButton,还是找不着，然后将转化后的elButton->ElButton，然后就找到了，也就是说用的时候，el和button无论哪个首字母大写，或者中间加杠的都能匹配到。
   if (hasOwn(assets, id)) return assets[id]
   const camelizedId = camelize(id)
   // 注册是驼峰，使用的时候是小写加-的情况
