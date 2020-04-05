@@ -75,9 +75,11 @@ export function renderMixin (Vue: Class<Component>) {
     if (_parentVnode) {
       vm.$scopedSlots = normalizeScopedSlots(
         _parentVnode.data.scopedSlots, // 它放在爸爸身上的scope || slot-scope的东西
+        // 实际上是这样的结构scopedSlots:{slotName:[fn(){},...],}
         vm.$slots,
         // vm.$slot = resolveSlots(options._renderChildren, renderContext)
         // 也是它爸爸里面不带scope或slot-scope的slot的集合
+        // $slots也是这样的结构{slot:[父占位组件里的children]}
         vm.$scopedSlots
       )
     }

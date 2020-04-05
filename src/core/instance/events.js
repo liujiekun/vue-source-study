@@ -59,7 +59,7 @@ export function eventsMixin (Vue: Class<Component>) {
         vm.$on(event[i], fn)
       }
     } else {
-      (vm._events[event] || (vm._events[event] = [])).push(fn)
+      (vm._events[event] || (vm._events[event] = [])).push(fn)// 同一个名字的函数注册多次，就会触发多次，所以有时候用的时候要先清空一下
       // optimize hook:event cost by using a boolean flag marked at registration
       // instead of a hash lookup
       if (hookRE.test(event)) {
@@ -83,7 +83,7 @@ export function eventsMixin (Vue: Class<Component>) {
   Vue.prototype.$off = function (event?: string | Array<string>, fn?: Function): Component {
     const vm: Component = this
     // all
-    if (!arguments.length) {
+    if (!arguments.length) { // 如果调用$off不传参数，一下子全部卸载完了
       vm._events = Object.create(null)
       return vm
     }
@@ -99,7 +99,7 @@ export function eventsMixin (Vue: Class<Component>) {
     if (!cbs) {
       return vm
     }
-    if (!fn) {
+    if (!fn) {// 传了名字不传，fn就将该名下事件清空
       vm._events[event] = null
       return vm
     }
@@ -108,7 +108,7 @@ export function eventsMixin (Vue: Class<Component>) {
     let i = cbs.length
     while (i--) {
       cb = cbs[i]
-      if (cb === fn || cb.fn === fn) {
+      if (cb === fn || cb.fn === fn) {// 找到该名下的该事件，去掉
         cbs.splice(i, 1)
         break
       }

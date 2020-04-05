@@ -24,13 +24,13 @@ export function validateProp(
   propsData: Object,
   vm?: Component
 ): any {
-  const prop = propOptions[key]
+  const prop = propOptions[key] //组件里要的值
   const absent = !hasOwn(propsData, key) // 不在它父占位组件的属性里面
   let value = propsData[key] // 先取父占位组件里面传过来的值
   // boolean casting
   const booleanIndex = getTypeIndex(Boolean, prop.type)//有匹配到是Boolean类型
   if (booleanIndex > -1) { // 大于-1算是匹配到了Boolean,类型中有Boolean
-    if (absent && !hasOwn(prop, 'default')) {
+    if (absent && !hasOwn(prop, 'default')) {// 父组件没传，且没有设置default
       value = false // 且没有设置默认值，就设置为false
     } else if (value === '' || value === hyphenate(key)) { // key如果是两个单词，A B-->a-b
       // only cast empty string / same name to boolean if
@@ -43,7 +43,7 @@ export function validateProp(
     }
   }
   // check default value
-  if (value === undefined) {
+  if (value === undefined) {// 占位父组件没传
     value = getPropDefaultValue(vm, prop, key) // 先设定给default，再查找propsData，找到替换，找不到如果default是函数，就执行结果返回
     // since the default value is a fresh copy,
     // make sure to observe it.

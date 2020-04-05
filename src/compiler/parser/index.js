@@ -458,7 +458,8 @@ export function processElement (
 
   processRef(element)
   // 处理scope或者slot-scope,生成el.slotScope
-  // 如果元素中右slot='XXX',还会生成el.slotTarget,并在el.attrs中push该变量的一个对象
+  // 如果元素中右slot='XXX',还会生成el.slotTarget,
+  // 如果tag不是template并且不存在scope或者slot-scope的情况下,在el.attrs中push该变量的一个对象{name:slot,value:slotTarget,...}
   processSlotContent(element)
   // 处理<slot name="XXX"></slot>, 处理完el.slotName='XXX'
   processSlotOutlet(element)
