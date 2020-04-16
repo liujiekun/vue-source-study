@@ -13,7 +13,7 @@ const validDivisionCharRE = /[\w).+\-_$\]]/
 // 0x5D ]
 // 0x7B {
 // 0x7D }
-export function parseFilters(exp: string): string {
+export function parseFilters (exp: string): string {
   let inSingle = false
   let inDouble = false
   let inTemplateString = false
@@ -27,16 +27,16 @@ export function parseFilters(exp: string): string {
   for (i = 0; i < exp.length; i++) {
     prev = c
     c = exp.charCodeAt(i)
-    if (inSingle) {
+    if (inSingle) { // 已经有了单引号
       if (c === 0x27 && prev !== 0x5C) inSingle = false
-    } else if (inDouble) {
+    } else if (inDouble) { // 已经有了双引号
       if (c === 0x22 && prev !== 0x5C) inDouble = false
-    } else if (inTemplateString) {
+    } else if (inTemplateString) {// 已经有了字符串模板开头
       if (c === 0x60 && prev !== 0x5C) inTemplateString = false
-    } else if (inRegex) {
+    } else if (inRegex) { // 正则表达式
       if (c === 0x2f && prev !== 0x5C) inRegex = false
     } else if (
-      c === 0x7C && // pipe
+      c === 0x7C && // | 继续下一个filter
       exp.charCodeAt(i + 1) !== 0x7C &&
       exp.charCodeAt(i - 1) !== 0x7C &&
       !curly && !square && !paren
@@ -81,7 +81,7 @@ export function parseFilters(exp: string): string {
     pushFilter()
   }
 
-  function pushFilter() {
+  function pushFilter () {
     (filters || (filters = [])).push(exp.slice(lastFilterIndex, i).trim())
     lastFilterIndex = i + 1
   }
@@ -95,12 +95,12 @@ export function parseFilters(exp: string): string {
   return expression
 }
 
-function wrapFilter(exp: string, filter: string): string {
+function wrapFilter (exp: string, filter: string): string {
   const i = filter.indexOf('(')
-  if (i < 0) {
+  if (i < 0) {// 小于0，过滤器中没有带额外的参数
     // _f: resolveFilter
     return `_f("${filter}")(${exp})`
-  } else {
+  } else {// 小于0，过滤器中带有额外的参数
     const name = filter.slice(0, i)
     const args = filter.slice(i + 1)
     return `_f("${name}")(${exp}${args !== ')' ? ',' + args : args}`
