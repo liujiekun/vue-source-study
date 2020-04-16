@@ -83,13 +83,13 @@ function genCheckboxModel (
   )
   addHandler(el, 'change',
     `var $$a=${value},` +
-        '$$el=$event.target,' +
-        `$$c=$$el.checked?(${trueValueBinding}):(${falseValueBinding});` +
+    '$$el=$event.target,' +
+    `$$c=$$el.checked?(${trueValueBinding}):(${falseValueBinding});` +
     'if(Array.isArray($$a)){' +
-      `var $$v=${number ? '_n(' + valueBinding + ')' : valueBinding},` +
-          '$$i=_i($$a,$$v);' +
-      `if($$el.checked){$$i<0&&(${genAssignmentCode(value, '$$a.concat([$$v])')})}` +
-      `else{$$i>-1&&(${genAssignmentCode(value, '$$a.slice(0,$$i).concat($$a.slice($$i+1))')})}` +
+    `var $$v=${number ? '_n(' + valueBinding + ')' : valueBinding},` +
+    '$$i=_i($$a,$$v);' +
+    `if($$el.checked){$$i<0&&(${genAssignmentCode(value, '$$a.concat([$$v])')})}` +
+    `else{$$i>-1&&(${genAssignmentCode(value, '$$a.slice(0,$$i).concat($$a.slice($$i+1))')})}` +
     `}else{${genAssignmentCode(value, '$$c')}}`,
     null, true
   )
@@ -172,8 +172,8 @@ function genDefaultModel (
     code = `if($event.target.composing)return;${code}`
   }
 
-  addProp(el, 'value', `(${value})`)
-  addHandler(el, event, code, null, true)
+  addProp(el, 'value', `(${value})`) // 给el添加value属性
+  addHandler(el, event, code, null, true) // el添加events事件
   if (trim || number) {
     addHandler(el, 'blur', '$forceUpdate()')
   }
