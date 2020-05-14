@@ -583,7 +583,7 @@ function processIf (el) {
 function processIfConditions (el, parent) {
   const prev = findPrevElement(parent.children)
   if (prev && prev.if) {
-    addIfCondition(prev, { // 把else-if、else元素跟if元素通过父元素的ifconditions:[]绑定起来了
+    addIfCondition(prev, { // 把else-if、else元素跟if元素通过if元素的ifconditions:[]绑定起来了
       exp: el.elseif, // 如果只是else，这个就是undefined，如果是elseif就有值
       block: el
     })
