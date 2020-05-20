@@ -360,7 +360,7 @@ function genDirectives (el: ASTElement, state: CodegenState): string | void {
     needRuntime = true
     // state.directives:{html,  model,  text,  on,  bind,cloak}
     //                 v-html,v-model,v-text,v-on,v-bind,noop
-    // 前三个是baseOptions带过来的，后三个是compiler里面号称baseDirectives
+    // 前三个是baseOptions带过来的，后三个是CodegenState里面号称baseDirectives
     // 其实compiler文件夹下面还有一个directives文件夹，里面有一个model，有意思的是baseOptions下面的model还是需要调用compiler/directives/model.js来处理genDefaultModel等model
     const gen: DirectiveFunction = state.directives[dir.name]
     if (gen) {
