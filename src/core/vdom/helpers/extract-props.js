@@ -56,7 +56,7 @@ function checkProp(
   key: string,
   altKey: string,
   preserve: boolean
-): boolean {
+): boolean {//如果被作为props识别了，就从$attrs中删去,$attrs只保留除了props之外的属性
   if (isDef(hash)) {
     if (hasOwn(hash, key)) {
       res[key] = hash[key]
