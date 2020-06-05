@@ -64,7 +64,7 @@ export function initGlobalAPI (Vue: GlobalAPI) {
   extend(Vue.options.components, builtInComponents)
 
   initUse(Vue) // 初始化插件用法Vue.use
-  initMixin(Vue) // Vue.mixin
+  initMixin(Vue) // Vue.mixin,$data,$props,$set,$delete,$watch
   initExtend(Vue) // Vue.extend
   initAssetRegisters(Vue)
   // 定义过滤器，组件，指令的方法
