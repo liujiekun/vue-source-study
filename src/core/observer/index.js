@@ -75,6 +75,7 @@ export class Observer {
    * Observe a list of Array items.
    */
   observeArray (items: Array<any>) {
+    // 看清楚了吧数组没有对每一项进行Object.defineProperty,而是直接对子项进行observe了
     for (let i = 0, l = items.length; i < l; i++) {
       observe(items[i])
     }
@@ -111,6 +112,7 @@ function copyAugment (target: Object, src: Object, keys: Array<string>) {
  * or the existing observer if the value already has one.
  */
 export function observe (value: any, asRootData: ?boolean): Observer | void {
+  // 对象才有__ob__,字面量没有
   if (!isObject(value) || value instanceof VNode) {
     return
   }
