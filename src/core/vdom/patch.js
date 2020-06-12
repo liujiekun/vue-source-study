@@ -217,7 +217,7 @@ export function createPatchFunction (backend) {
           invokeCreateHooks(vnode, insertedVnodeQueue)
           // 触发各种各样的钩子
         }
-        // 把组件插入到父元素下面
+        // 把元素插入到父元素下面
         insert(parentElm, vnode.elm, refElm)
       }
 
@@ -341,6 +341,7 @@ export function createPatchFunction (backend) {
     i = vnode.data.hook // Reuse variable
     if (isDef(i)) { // 是组件的话，在构造组件构造函数的时候，会给data.hook添加{init,insert,prepatch,destroy}
       if (isDef(i.create)) i.create(emptyNode, vnode)
+      // 继续往队列里push，直到整个树都挂载之后，才出发整个树包含的组件的mounted事件，最后才触发根节点组件的mounted事件
       if (isDef(i.insert)) insertedVnodeQueue.push(vnode)
       // 貌似只要是组件的patch都会进入insertedVnodeQueue
     }
@@ -848,7 +849,7 @@ export function createPatchFunction (backend) {
         }
       }
     }
-
+    // 整个树都挂载之后，才触发整个树包含的组件的mounted事件，最后才触发根节点组件的mounted事件
     invokeInsertHook(vnode, insertedVnodeQueue, isInitialPatch)
     // 触发插入的一系列钩子
     return vnode.elm
