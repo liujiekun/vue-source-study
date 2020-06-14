@@ -41,6 +41,7 @@ export class Observer {
 
   constructor(value: any) {
     this.value = value
+    // 对象自己的dep有啥用呢？答案就是$set，$delete的时候会用到
     this.dep = new Dep()
     this.vmCount = 0
     def(value, '__ob__', this)
@@ -165,8 +166,8 @@ export function defineReactive (
       const value = getter ? getter.call(obj) : val
       if (Dep.target) { // watcher入栈
         dep.depend() // 收集依赖
-        if (childOb) { // 如果属性也是对象，返回一个ob，ob也有自己的dep
-          childOb.dep.depend()
+        if (childOb) { // 如果属性也是对象，返回一个ob，ob也有自己的dep，以
+          childOb.dep.depend() // 至于使用$set和$delete的时候使用ob.dep.notify通知更新。
           if (Array.isArray(value)) {
             dependArray(value) // 数组的话，递归
           }
