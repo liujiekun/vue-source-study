@@ -656,6 +656,7 @@ export function createPatchFunction (backend) {
         return false
       }
     }
+    // 组件实例创建
     if (isDef(data)) {
       if (isDef(i = data.hook) && isDef(i = i.init)) i(vnode, true /* hydrating */)
       if (isDef(i = vnode.componentInstance)) {
