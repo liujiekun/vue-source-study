@@ -120,7 +120,7 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
     ob = value.__ob__ // 如果有，就用原来的
   } else if (
     shouldObserve &&
-    !isServerRendering() &&
+    !isServerRendering() && // 如果是服务器端，不做响应式，没必要
     (Array.isArray(value) || isPlainObject(value)) &&
     Object.isExtensible(value) &&
     !value._isVue
