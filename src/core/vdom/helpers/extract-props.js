@@ -22,9 +22,12 @@ export function extractPropsFromVNodeData(
     return
   }
   const res = {}
+  // 父占位组件里的data
   const { attrs, props } = data
   if (isDef(attrs) || isDef(props)) {
+    // 组件定义的props
     for (const key in propOptions) {
+      // 接收的属性，转换成kebab-case
       const altKey = hyphenate(key) // 把驼峰liuJieKun转成->liu-jie-kun
       if (process.env.NODE_ENV !== 'production') {
         const keyInLowerCase = key.toLowerCase()
@@ -50,6 +53,8 @@ export function extractPropsFromVNodeData(
   return res
 }
 
+// 按规范dom里写法让这么用:
+// <com :liu-jiekun="liujiekun" ,但是我偏偏 <com :liuJieKun="liujiekun"
 function checkProp(
   res: Object,
   hash: ?Object,
@@ -58,13 +63,13 @@ function checkProp(
   preserve: boolean
 ): boolean {//如果被作为props识别了，就从$attrs中删去,$attrs只保留除了props之外的属性
   if (isDef(hash)) {
-    if (hasOwn(hash, key)) {
+    if (hasOwn(hash, key)) { // 驼峰
       res[key] = hash[key]
       if (!preserve) {
         delete hash[key]
       }
       return true
-    } else if (hasOwn(hash, altKey)) {
+    } else if (hasOwn(hash, altKey)) { // kebab-case写法
       res[key] = hash[altKey]
       if (!preserve) {
         delete hash[altKey]
