@@ -120,11 +120,11 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
   if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
     ob = value.__ob__ // 如果有，就用原来的
   } else if (
-    shouldObserve &&
+    shouldObserve && // 用这个变量会卡掉一些
     !isServerRendering() && // 如果是服务器端，不做响应式，没必要
     (Array.isArray(value) || isPlainObject(value)) &&
     Object.isExtensible(value) &&
-    !value._isVue
+    !value._isVue // _isVue是指Vue实例
   ) {
     ob = new Observer(value) //如果没有就新建，新建过程可以看看
   }
@@ -164,7 +164,7 @@ export function defineReactive (
     configurable: true,
     get: function reactiveGetter () {
       const value = getter ? getter.call(obj) : val
-      if (Dep.target) { // watcher入栈
+      if (Dep.target) { // 栈中有watcher的话
         dep.depend() // 收集依赖
         if (childOb) { // 如果属性也是对象，返回一个ob，ob也有自己的dep，以
           childOb.dep.depend() // 至于使用$set和$delete的时候使用ob.dep.notify通知更新。
@@ -182,7 +182,7 @@ export function defineReactive (
         return
       }
       /* eslint-enable no-self-compare */
-      if (process.env.NODE_ENV !== 'production' && customSetter) {
+      if (process.env.NODE_ENV !== 'production' && customSetter) 
         customSetter()
       }
       // #7981: for accessor properties without setter

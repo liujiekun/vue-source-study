@@ -68,7 +68,7 @@ export function initGlobalAPI (Vue: GlobalAPI) {
   initExtend(Vue) // Vue.extend
   initAssetRegisters(Vue)
   // 定义过滤器，组件，指令的方法
-  // Vue.filters('name':function(){})
-  // Vue.component('component',function(){}||Object)
-  // Vue.directive('directive',function(){}||Object)
+  // Vue.filter=function('filterName':function(){})
+  // Vue.component=function('componentName',function(){}||Object)
+  // Vue.directive=function('directiveName',function(){}||Object)
 }
