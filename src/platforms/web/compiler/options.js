@@ -17,18 +17,18 @@ export const baseOptions: CompilerOptions = {
   modules,
   // modules:[
   //   klass:{
-  //   staticKeys: ['staticClass'],
-  //   transformNode,
-  //   genData
-  // },
+  //     staticKeys: ['staticClass'],
+  //     transformNode,
+  //     genData
+  //   },
   //   style:{
-  //   staticKeys: ['staticStyle'],
-  //   transformNode,
-  //   genData
-  // },
+  //     staticKeys: ['staticStyle'],
+  //     transformNode,
+  //     genData
+  //   },
   //   model:{
-  //   preTransformNode
-  // }
+  //     preTransformNode
+  //   }
   // ]
   directives,
   // directives:{
