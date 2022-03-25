@@ -67,6 +67,7 @@ function prependModifierMarker (symbol: string, name: string, dynamic?: boolean)
 }
 //(el, name, value, modifiers, false, warn, list[i], isDynamic
 // el, click, value, {},false,warn,@click=handleclick false
+// el, `update:demo`, `demo=$event`,null,false,warn,list[i]
 export function addHandler (
   el: ASTElement,
   name: string,

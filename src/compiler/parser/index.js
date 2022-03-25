@@ -163,6 +163,7 @@ export function parse (
     // filter out scoped slots
     // 为什么要清理掉呢，等待后续解答,看147行的官方解释原因
     // 有slotScope的都被清理掉了，加到父占位组件上去了
+    // 另一个原因是如果在children里待着，可能在处理elseif或者else的时候被作为prev使用
     // keep it in the children list so that v-else(-if) conditions can
     // find it as the prev node.
     element.children = element.children.filter(c => !(c: any).slotScope)
@@ -469,7 +470,7 @@ export function processElement (
     element = transforms[i](element, options) || element
   }
   // 截止目前该加到el上的属性都加上了，
-  // 现在的element：{key:xxx,if:xx,else-if:xx,ifConditions:[],ref:xxx,slotScope:xxx,slotTarget:xxx,slotName=xxx,staticClass:xxx,staticStyle:xxx,attrs:[]}
+  // 现在的element：{key:xxx,if:xx,elseIf:xx,ifConditions:[],ref:xxx,slotScope:xxx,slotTarget:xxx,slotName=xxx,staticClass:xxx,staticStyle:xxx,attrs:[]}
   // 接下来该处理attrs了
   processAttrs(element)
   return element
@@ -830,6 +831,7 @@ function processAttrs (el) {
           )
         }
         if (modifiers) {
+          // 对应属性的简写，如title.prop = 'xxx'
           if (modifiers.prop && !isDynamic) {
             name = camelize(name)
             if (name === 'innerHtml') name = 'innerHTML'
@@ -840,6 +842,7 @@ function processAttrs (el) {
           if (modifiers.sync) { // 弹窗最常见，如:visible.sync = 'dialogshow'
             syncGen = genAssignmentCode(value, `$event`)
             if (!isDynamic) {
+              // el, `update:demo`, `demo=$event`,null,false,warn,list[i]
               addHandler(
                 el,
                 `update:${camelize(name)}`, // 难怪写了.sync父组件中不需要接收@"update:事件"也可以更改值
