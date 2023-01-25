@@ -79,6 +79,7 @@ export function parseHTML(html, options) {
         }
 
         // http://en.wikipedia.org/wiki/Conditional_comment#Downlevel-revealed_conditional_comment
+        // 浏览器的条件判断，适用于IE系列
         if (conditionalComment.test(html)) {
           const conditionalEnd = html.indexOf(']>')
 
@@ -238,7 +239,7 @@ export function parseHTML(html, options) {
         : options.shouldDecodeNewlines
       attrs[i] = {
         name: args[1],
-        value: decodeAttr(value, shouldDecodeNewlines) // 如果是a标签，属性又是href的话，需要解码
+        value: decodeAttr(value, shouldDecodeNewlines) // 如果是a标签，属性又是href的话，需要解码，根本上说需要解码的是href的值
       }
       if (process.env.NODE_ENV !== 'production' && options.outputSourceRange) {
         attrs[i].start = args.start + args[0].match(/^\s*/).length

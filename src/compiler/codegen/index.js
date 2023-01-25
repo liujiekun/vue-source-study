@@ -79,7 +79,7 @@ export function genElement (el: ASTElement, state: CodegenState): string {
   } else {
     // component or element
     let code
-    if (el.component) {
+    if (el.component) { // 处理component is='componentName'
       code = genComponent(el.component, el, state)
     } else {
       let data

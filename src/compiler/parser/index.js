@@ -264,7 +264,7 @@ export function parse (
           }
         })
       }
-
+      // style, script这类标签禁止使用
       if (isForbiddenTag(element) && !isServerRendering()) {
         element.forbidden = true
         process.env.NODE_ENV !== 'production' && warn(
@@ -275,7 +275,7 @@ export function parse (
         )
       }
 
-      // apply pre-transforms
+      // apply pre-transforms, 主要处理tag=input的情况
       for (let i = 0; i < preTransforms.length; i++) {
         element = preTransforms[i](element, options) || element
       }
@@ -290,7 +290,7 @@ export function parse (
         inPre = true
       }
       if (inVPre) {
-        processRawAttrs(element) // 如果是v-pre，el.attrs=el.attrsList
+        processRawAttrs(element) // 如果是v-pre，el.attrs=el.attrsList,但是attrs中属性值变成了JSON.stringify
       } else if (!element.processed) {
         // structural directives
         processFor(element)
@@ -464,7 +464,7 @@ export function processElement (
   processSlotContent(element)
   // 处理<slot name="XXX"></slot>, 处理完el.slotName='XXX'
   processSlotOutlet(element)
-  processComponent(element)
+  processComponent(element) // 处理component is='componentName'
   for (let i = 0; i < transforms.length; i++) {
     // 处理静态class和静态style,生成el.staticClass和el.staticStyle
     element = transforms[i](element, options) || element
@@ -537,7 +537,7 @@ type ForParseResult = {
   iterator2?: string
 }
 
-export function parseFor (exp: string): ?ForParseResult {
+export function parseFor(exp: string): ForParseResult | undefined {
   const inMatch = exp.match(forAliasRE)
   if (!inMatch) return
   // (item,index) in List,
