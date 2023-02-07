@@ -100,7 +100,7 @@ function wrapFilter (exp: string, filter: string): string {
   if (i < 0) {// 小于0，过滤器中没有带额外的参数
     // _f: resolveFilter
     return `_f("${filter}")(${exp})`
-  } else {// 小于0，过滤器中带有额外的参数
+  } else {// 大于0，过滤器中带有额外的参数
     const name = filter.slice(0, i)
     const args = filter.slice(i + 1)
     return `_f("${name}")(${exp}${args !== ')' ? ',' + args : args}`

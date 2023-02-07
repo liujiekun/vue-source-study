@@ -28,7 +28,7 @@ export const createCompiler = createCompilerCreator(function baseCompile (
   //   if:'',
   //   else-if:'',
   //   key:'',
-  //   for:'',
+  //   for:{for: List, iterator1:'item'},
   //   slotName:'', // 如果tag==slot的话，slotName=(slot 标签的name)
   //   slot:'',  // <div slot='xxx'>
   //   slotTarget:'', // <div slot='xxx'>

@@ -49,9 +49,9 @@ export function genAssignmentCode (
   // 假设v-model="A.B["C"]", res:{exp:'A.B',key:"C"}
   // 假设v-model="A.B["C"]["D"]", res:{exp:'A.B["C"]',key:"D"}
   if (res.key === null) {
-    return `${value}=${assignment}` // 相当于字面量的直接赋值
+    return `${value}=${assignment}` // 相当于字面量的直接赋值, `A=$event`
   } else {
-    return `$set(${res.exp}, ${res.key}, ${assignment})` // 对象或者数组中的需要$set
+    return `$set(${res.exp}, ${res.key}, ${assignment})` // 对象或者数组中的需要$set,`$set(A,B,$event)`
   }
 }
 
@@ -82,18 +82,19 @@ export function parseModel (val: string): ModelParseResult {
   // allow v-model="obj.val " (trailing whitespace)
   val = val.trim()
   len = val.length
-  // 使用中括号，并且有.,只能是这样的情况A.B
+  // 使用中括号，并且有.,只能是这样的情况A['B'].C
   if (val.indexOf('[') < 0 || val.lastIndexOf(']') < len - 1) {
     index = val.lastIndexOf('.')
-    if (index > -1) { // 如果value中还有.说明v-model="A.B"
+    if (index > -1) {
+      // 如果value中还有.说明v-model="A.B" 或者A['B'].C
       return {
         exp: val.slice(0, index),
-        key: '"' + val.slice(index + 1) + '"' //{exp:A,key:'B'}
-      }
+        key: '"' + val.slice(index + 1) + '"', //{exp:A,key:'B'} || {exp:A['B'],key:C}
+      };
     } else { // 没有.说明只绑定了某个值
       return {
         exp: val,
-        key: null // {exp:"A",key:null}
+        key: null // {exp:"A['B']",key:null}
       }
     }
   }
