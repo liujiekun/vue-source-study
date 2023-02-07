@@ -22,11 +22,11 @@ export function extractPropsFromVNodeData(
     return
   }
   const res = {}
-  // 父占位组件里的data
+  // 父占位组件里的data，也就是真实即将要渲染的
   const { attrs, props } = data
   if (isDef(attrs) || isDef(props)) {
     // 组件定义的props
-    for (const key in propOptions) {
+    for (const key in propOptions) { // 组件里定义的
       // 接收的属性，转换成kebab-case
       const altKey = hyphenate(key) // 把驼峰liuJieKun转成->liu-jie-kun
       if (process.env.NODE_ENV !== 'production') {
@@ -46,6 +46,7 @@ export function extractPropsFromVNodeData(
         }
       }
       // 如果是props中只加不删，如果是attrs加上就从attrs中删除
+      // 这就是为啥$attrs中，每一级通过属性获取之后，就会变少的原因
       checkProp(res, props, key, altKey, true) ||
         checkProp(res, attrs, key, altKey, false)
     }

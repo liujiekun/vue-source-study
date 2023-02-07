@@ -15,6 +15,7 @@ import { unicodeRegExp } from 'core/util/lang'
 
 // Regular Expressions for parsing tags and attributes
 const attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/
+// v-bind:、@、:、#、[
 const dynamicArgAttribute = /^\s*((?:v-[\w-]+:|@|:|#)\[[^=]+\][^\s"'<>\/=]*)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/
 const ncname = `[a-zA-Z_][\\-\\.0-9_a-zA-Z${unicodeRegExp.source}]*`
 const qnameCapture = `((?:${ncname}\\:)?${ncname})`
@@ -79,6 +80,7 @@ export function parseHTML(html, options) {
         }
 
         // http://en.wikipedia.org/wiki/Conditional_comment#Downlevel-revealed_conditional_comment
+        // 匹配ie低版本的条件渲染
         if (conditionalComment.test(html)) {
           const conditionalEnd = html.indexOf(']>')
 
@@ -118,7 +120,7 @@ export function parseHTML(html, options) {
       let text, rest, next
       // 如果它大于0说明截取到了text文本，且后面还有标签
       if (textEnd >= 0) {
-        rest = html.slice(textEnd)
+        rest = html.slice(textEnd) // 把前面的文本切出来
         while (
           !endTag.test(rest) &&
           !startTagOpen.test(rest) &&
@@ -275,7 +277,7 @@ export function parseHTML(html, options) {
       pos = 0
     }
 
-    if (pos >= 0) {
+    if (pos >= 0) { // 匹配到开始标签了
       // Close all the open elements, up the stack
       for (let i = stack.length - 1; i >= pos; i--) {
         if (process.env.NODE_ENV !== 'production' &&

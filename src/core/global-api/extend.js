@@ -34,6 +34,7 @@ export function initExtend(Vue: GlobalAPI) {
     }
 
     const Sub = function VueComponent(options) {
+      // Vue只是第一次的constructor，剩下的子组件的constructor都是这里
       this._init(options);
     };
     Sub.prototype = Object.create(Super.prototype); // 经典的继承写法

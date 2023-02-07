@@ -56,7 +56,7 @@ function mergeData(to: Object, from: ?Object): Object {
     toVal = to[key];
     fromVal = from[key];
     if (!hasOwn(to, key)) {
-      // 如果to里有，替换成新的
+      // 如果to里没有，替换成from的
       set(to, key, fromVal);
     } else if (
       toVal !== fromVal &&
@@ -432,10 +432,13 @@ export function mergeOptions(
   const options = {};
   let key;
   for (key in parent) {
+    // 先按parent的key合并
     mergeField(key);
   }
   for (key in child) {
     if (!hasOwn(parent, key)) {
+      // 如果自己没有，再按child的key的合并进去，反之如果自己有，就不让孩子再合并了
+      // 再按child的key合并
       mergeField(key);
     }
   }
@@ -475,6 +478,7 @@ export function resolveAsset(
   // 注册是首字母大写，使用时是首字母小写的情况
   if (hasOwn(assets, PascalCaseId)) return assets[PascalCaseId];
   // fallback to prototype chain
+  // 最后去原型链上去找，也就是全局注册的组件
   const res = assets[id] || assets[camelizedId] || assets[PascalCaseId];
   if (process.env.NODE_ENV !== "production" && warnMissing && !res) {
     warn("Failed to resolve " + type.slice(0, -1) + ": " + id, options);
