@@ -187,6 +187,7 @@ export function createComponent(
     // work around flow
     const slot = data.slot
     data = {} // 这里突然清空了，没有影响吗？看外层的条件
+    // data = {}没有任何问题，因为这些组件，不支持任何属性和任何事件，只需要渲染子节点也就是slot就可以了
     if (slot) {
       data.slot = slot
     }

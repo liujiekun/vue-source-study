@@ -20,6 +20,8 @@ export default {
 export function registerRef (vnode: VNodeWithData, isRemoval: ?boolean) {
   const key = vnode.data.ref
   if (!isDef(key)) return
+  // 虚拟组件data被置空了，这里获取不到了
+  // 见src/core/vdom/create-component.js
 
   const vm = vnode.context
   const ref = vnode.componentInstance || vnode.elm
