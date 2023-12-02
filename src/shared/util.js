@@ -4,32 +4,32 @@ export const emptyObject = Object.freeze({})
 
 // These helpers produce better VM code in JS engines due to their
 // explicitness and function inlining.
-export function isUndef (v: any): boolean % checks {
+export function isUndef(v: any): boolean {
   return v === undefined || v === null
 }
 
-export function isDef (v: any): boolean % checks {
+export function isDef(v: any): boolean {
   return v !== undefined && v !== null
 }
 
-export function isTrue (v: any): boolean % checks {
+export function isTrue(v: any): boolean {
   return v === true
 }
 
-export function isFalse (v: any): boolean % checks {
+export function isFalse(v: any): boolean {
   return v === false
 }
 
 /**
  * Check if value is primitive.
  */
-export function isPrimitive (value: any): boolean % checks {
+export function isPrimitive(value: any): boolean {
   return (
-    typeof value === 'string' ||
-    typeof value === 'number' ||
+    typeof value === "string" ||
+    typeof value === "number" ||
     // $flow-disable-line
-    typeof value === 'symbol' ||
-    typeof value === 'boolean'
+    typeof value === "symbol" ||
+    typeof value === "boolean"
   )
 }
 
@@ -38,8 +38,8 @@ export function isPrimitive (value: any): boolean % checks {
  * Objects from primitive values when we know the value
  * is a JSON-compliant type.
  */
-export function isObject (obj: mixed): boolean % checks {
-  return obj !== null && typeof obj === 'object'
+export function isObject(obj: mixed): boolean {
+  return obj !== null && typeof obj === "object"
 }
 
 /**

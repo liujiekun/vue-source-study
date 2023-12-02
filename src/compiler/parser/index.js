@@ -530,24 +530,24 @@ export function processFor (el: ASTElement) {
   }
 }
 
-type ForParseResult = {
-  for: string
-  alias: string
-  iterator1?: string
-  iterator2?: string
-}
+// type ForParseResult = {
+//   for: string
+//   alias: string
+//   iterator1?: string
+//   iterator2?: string
+// }
 
-export function parseFor(exp: string): ForParseResult | undefined {
+export function parseFor(exp: string) {
   const inMatch = exp.match(forAliasRE)
   if (!inMatch) return
   // (item,index) in List,
   //如果匹配到了就是这样的 ["(item,index) in List", "(item,index)", "List"]
   const res = {}
   res.for = inMatch[2].trim() // 匹配到的循环对象List
-  const alias = inMatch[1].trim().replace(stripParensRE, '') // 把表达式左右括号去掉,变成item,index
+  const alias = inMatch[1].trim().replace(stripParensRE, "") // 把表达式左右括号去掉,变成item,index
   const iteratorMatch = alias.match(forIteratorRE) // 剩下了item,index 用来匹配都好后面的\,index
   if (iteratorMatch) {
-    res.alias = alias.replace(forIteratorRE, '').trim() // 只剩下了item
+    res.alias = alias.replace(forIteratorRE, "").trim() // 只剩下了item
     res.iterator1 = iteratorMatch[1].trim() // index
     if (iteratorMatch[2]) {
       res.iterator2 = iteratorMatch[2].trim()

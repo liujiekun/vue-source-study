@@ -182,7 +182,7 @@ export function defineReactive (
         return
       }
       /* eslint-enable no-self-compare */
-      if (process.env.NODE_ENV !== 'production' && customSetter) 
+      if (process.env.NODE_ENV !== "production" && customSetter) {
         customSetter()
       }
       // #7981: for accessor properties without setter

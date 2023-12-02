@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <button @click="handleClick">{{count}}</button>
+    <my-component></my-component>
+    <my-component2></my-component2>
+  </div>
+  <script src="../../dist/vue.js"></script>
+  <script>
+    var app = new Vue({
+      el: "#app",
+      data() {
+        return {
+          count: 0,
+        }
+      },
+      methods: {
+        handleClick() {
+          this.count++
+        }
+      },
+      beforeMount() {
+        console.log('app beforeMount')
+      },
+      mounted() {
+        console.log('app mounted')
+      },
+      components: {
+        'my-component': {
+          template: '<div>我是组件</div>',
+          beforeMount() {
+            console.log('组件1 beforeMount')
+          },
+          mounted() {
+            console.log('组件1 mounted')
+          },
+        },
+        'my-component2': {
+          template: '<div>我是组件2</div>',
+          beforeMount() {
+            console.log('组件2 beforeMount')
+          },
+          mounted() {
+            console.log('组件2 mounted')
+          },
+        }
+      }
+    })
+
+  </script>
+</body>
+</html>
