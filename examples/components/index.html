@@ -7,13 +7,14 @@
 </head>
 <body>
   <div id="app">
-    <button @click="handleClick">{{count}}</button>
-    <my-component></my-component>
-    <my-component2></my-component2>
+    <my-component :pr="count" @selfclick="handleChildClick"></my-component>
+    {{other}}
   </div>
   <script src="../../dist/vue.js"></script>
+  <script src="./index.js"></script>
   <script>
     var app = new Vue({
+      mixins:[mixinsObj],
       el: "#app",
       data() {
         return {
@@ -21,9 +22,26 @@
         }
       },
       methods: {
-        handleClick() {
+        handleChildClick() {
+          console.log('父组件接收')
           this.count++
         }
+      },
+      watch: {
+        count: {
+          handler:function(val,oldval) {
+            console.log('组件自己watch')
+          }
+        }
+      },
+      computed:{
+        other(){
+          console.log('组件自己other')
+          return this.count+2
+        }
+      },
+      created () {
+        console.log('组件created')
       },
       beforeMount() {
         console.log('app beforeMount')
@@ -33,21 +51,22 @@
       },
       components: {
         'my-component': {
-          template: '<div>我是组件</div>',
+          props:["pr"],
+          template: `<div>
+            我是组件{{pr}}
+            <button @click="handleChildClick">子组件button{{pr}}</button>
+            </div>`,
           beforeMount() {
             console.log('组件1 beforeMount')
           },
+          methods: {
+            handleChildClick(){
+              console.log('子组件click')
+              this.$emit('selfclick')
+            }
+          },
           mounted() {
             console.log('组件1 mounted')
-          },
-        },
-        'my-component2': {
-          template: '<div>我是组件2</div>',
-          beforeMount() {
-            console.log('组件2 beforeMount')
-          },
-          mounted() {
-            console.log('组件2 mounted')
           },
         }
       }

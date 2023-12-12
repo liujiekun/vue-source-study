@@ -423,8 +423,8 @@ export function mergeOptions(
     }
     if (child.mixins) {
       for (let i = 0, l = child.mixins.length; i < l; i++) {
-        parent = mergeOptions(parent, child.mixins[i], vm);
-        // 孩子组件中如果有mixins，先把mixins中的东西交给它爸爸，然后它爸爸再和组件对比，如果组件中有相同的东东，就用儿子的取代爸爸的，也就是组件中的可以取代mixins中的东西
+        parent = mergeOptions(parent, child.mixins[i], vm)
+        // 孩子组件中如果有mixins，先把mixins中的东西交给它爸爸，然后它爸爸再和组件本身的options对比，如果组件中有相同的东东，就用组件本身的取代爸爸的，也就是组件中的可以取代mixins中的东西
       }
     }
   }
